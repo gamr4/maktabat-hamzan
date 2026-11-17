@@ -5,6 +5,7 @@ A Laravel web application to manage a stationery business: clients, suppliers, p
 ## Features
 
 - Authentication (login / logout)
+- Public landing page with the Neumorphic Tech Schematic design
 - Dashboard with statistics (clients, fournisseurs, produits, commandes) and the latest orders
 - Full CRUD for:
   - **Clients**
@@ -21,6 +22,7 @@ A Laravel web application to manage a stationery business: clients, suppliers, p
 - Blade templates
 - MySQL (or any database supported by Laravel)
 - Tabler Icons (CDN) and a custom stylesheet (`public/css/theme.css`)
+- Landing page assets are plain CSS/JS (`public/css/landing.css`, `public/js/landing.js`) — no asset build required
 
 ## Installation
 
@@ -64,7 +66,7 @@ All routes except login are protected by the `auth` middleware.
 
 | Method | URI | Name | Description |
 |--------|-----|------|-------------|
-| GET | `/` | none | Redirects to the dashboard |
+| GET | `/` | `home` | Public landing page (redirects signed-in users to the dashboard) |
 | GET | `/login` | `login` | Login form (guests only) |
 | POST | `/login` | none | Authenticate |
 | POST | `/logout` | `logout` | Log out |
@@ -87,6 +89,8 @@ app/
     └── Concerns/HasCode.php   # Auto-generates codes like Cli-000001
 resources/views/
 ├── layouts/app.blade.php      # Main layout (sidebar, alerts)
+├── layouts/public.blade.php   # Public site layout (landing header/footer)
+├── landing.blade.php          # Public landing page
 ├── dashboard.blade.php
 ├── clients/                   # index, create, edit, show
 ├── fournisseurs/
@@ -94,6 +98,8 @@ resources/views/
 └── commandes/
 routes/web.php
 public/css/theme.css
+public/css/landing.css        # Neumorphic landing styles
+public/js/landing.js          # Landing navigation + reveal animations
 ```
 
 ## Code Generation (`HasCode`)
