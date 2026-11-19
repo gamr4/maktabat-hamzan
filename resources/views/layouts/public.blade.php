@@ -4,16 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#F4F6F8">
+    <meta name="theme-color" content="#F4F6F8" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1B1F24" media="(prefers-color-scheme: dark)">
     <meta name="description" content="@yield('meta_description', 'Papeterie réunit clients, fournisseurs, produits et commandes dans une seule console de gestion.')">
     <title>@yield('title', 'Papeterie — Gestion des commandes')</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Roboto:wght@400;500;700;900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Roboto:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
 </head>
 

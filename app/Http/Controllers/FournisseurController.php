@@ -7,11 +7,24 @@ use Illuminate\Http\Request;
 
 class FournisseurController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $fournisseurs = Fournisseur::orderBy('code_fournisseur')->paginate(10);
+        $search = trim((string) $request->input('q'));
 
-        return view('fournisseurs.index', compact('fournisseurs'));
+        $fournisseurs = Fournisseur::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('nom_fournisseur', 'like', "%{$search}%")
+                        ->orWhere('code_fournisseur', 'like', "%{$search}%")
+                        ->orWhere('ville_fournisseur', 'like', "%{$search}%")
+                        ->orWhere('pays_fournisseur', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('code_fournisseur')
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('fournisseurs.index', compact('fournisseurs', 'search'));
     }
 
     public function create()

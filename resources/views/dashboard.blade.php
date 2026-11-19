@@ -1,103 +1,87 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', 'Tableau de bord')
+@section('eyebrow', 'Vue d’ensemble')
+
+@section('actions')
+    <a class="btn btn-primary" href="{{ route('commandes.create') }}">
+        <i class="ti ti-plus" aria-hidden="true"></i> Nouvelle commande
+    </a>
+@endsection
 
 @section('content')
-<!-- Statistics Grid Cards -->
-<div class="stats-grid">
-    <!-- Clients Card -->
-    <div class="stat-card" style="border-top: 4px solid var(--primary);">
-        <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--primary);">
-            <i class="ti ti-users"></i>
-        </div>
+    <section class="workspace-hero" aria-labelledby="workspace-title">
         <div>
-            <h3>{{ $stats['clients'] ?? 0 }}</h3>
-            <p>Clients</p>
+            <p class="workspace-hero__eyebrow"><span class="status-dot" aria-hidden="true"></span> Espace de travail</p>
+            <h2 id="workspace-title">Votre activité, claire et prête à avancer.</h2>
+            <p>Suivez le rythme de la papeterie, ajoutez une commande ou ouvrez directement la bonne collection.</p>
         </div>
+        <div class="workspace-hero__links" aria-label="Accès rapides">
+            <a href="{{ route('produits.index') }}"><i class="ti ti-box" aria-hidden="true"></i> Catalogue</a>
+            <a href="{{ route('clients.index') }}"><i class="ti ti-users" aria-hidden="true"></i> Clients</a>
+        </div>
+    </section>
+
+    <div class="stats-grid">
+        <x-stat-card label="Commandes" :value="$stats['commandes'] ?? 0" icon="shopping-cart"
+            :href="route('commandes.index')" accent />
+        <x-stat-card label="Clients" :value="$stats['clients'] ?? 0" icon="users"
+            :href="route('clients.index')" />
+        <x-stat-card label="Fournisseurs" :value="$stats['fournisseurs'] ?? 0" icon="truck-delivery"
+            :href="route('fournisseurs.index')" />
+        <x-stat-card label="Produits" :value="$stats['produits'] ?? 0" icon="box"
+            :href="route('produits.index')" />
     </div>
 
-    <!-- Fournisseurs Card -->
-    <div class="stat-card" style="border-top: 4px solid var(--success);">
-        <div class="stat-icon" style="background: rgba(22, 163, 74, 0.1); color: var(--success);">
-            <i class="ti ti-truck-delivery"></i>
+    <section class="card card--flush" aria-labelledby="latest-orders-title">
+        <div class="card__head">
+            <div>
+                <h2 class="card__title" id="latest-orders-title">Dernières commandes</h2>
+                <p class="section-note">Les cinq commandes les plus récentes.</p>
+            </div>
+            <a class="btn btn-ghost btn-sm" href="{{ route('commandes.index') }}">
+                Tout voir <i class="ti ti-arrow-right" aria-hidden="true"></i>
+            </a>
         </div>
-        <div>
-            <h3>{{ $stats['fournisseurs'] ?? 0 }}</h3>
-            <p>Fournisseurs</p>
-        </div>
-    </div>
 
-    <!-- Produits Card -->
-    <div class="stat-card" style="border-top: 4px solid var(--warning);">
-        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
-            <i class="ti ti-box"></i>
-        </div>
-        <div>
-            <h3>{{ $stats['produits'] ?? 0 }}</h3>
-            <p>Produits</p>
-        </div>
-    </div>
-
-    <!-- Commandes Card -->
-    <div class="stat-card" style="border-top: 4px solid #7C3AED;">
-        <div class="stat-icon" style="background: rgba(124, 58, 237, 0.1); color: #7C3AED;">
-            <i class="ti ti-shopping-cart"></i>
-        </div>
-        <div>
-            <h3>{{ $stats['commandes'] ?? 0 }}</h3>
-            <p>Commandes</p>
-        </div>
-    </div>
-</div>
-
-<!-- Last Orders Section -->
-<div class="card-section">
-    <div class="section-header">
-        <h2>Dernières commandes</h2>
-        <a href="{{ route('commandes.index') }}" class="btn-primary" style="text-decoration: none; padding: 8px 16px; border-radius: 6px; color: white; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
-            <i class="ti ti-plus"></i> Ajouter un commande
-        </a>
-    </div>
-
-    <div class="table-responsive">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Number</th>
-                    <th>Date</th>
-                    <th>Client</th>
-                    <th>Condition</th>
-                    <th>Total</th>
-                    <!-- <th style="text-align: right;">Actions</th> -->
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($latestCommandes ?? [] as $commande)
-                <tr>
-                    <td style="font-weight: 600; color: var(--primary);">{{ $commande->numero_commande ?? 'Com-00000' . $commande->id }}</td>
-                    <td>{{ $commande->created_at->format('d/m/Y') }}</td>
-                    <td>{{ $commande->client->code_client ?? 'Cli-00000X' }}</td>
-                    <td>
-                        @if(($commande->condition ?? 'LIV') === 'LIV')
-                            <span class="badge badge-liv">LIV</span>
-                        @else
-                            <span class="badge badge-t30">T30</span>
-                        @endif
-                    </td>
-                    <td style="font-weight: 600;">{{ number_format($commande->total ?? 450.00, 2) }} MAD</td>
-                    <!-- <td style="text-align: right;" class="action-icons">
-                        <a href="#" title="View"><i class="ti ti-eye"></i></a>
-                        <a href="#" title="Edit" style="color: var(--warning);"><i class="ti ti-edit"></i></a>
-                        <a href="#" title="Delete" style="color: var(--danger);"><i class="ti ti-trash"></i></a>
-                    </td> -->
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" style="text-align: center; color: #64748b; padding: 20px;">Aucune commande trouvée.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</div>
+        @if ($latestCommandes->isEmpty())
+            <x-empty-state icon="receipt" title="Aucune commande"
+                text="Créez une première commande pour la voir apparaître ici.">
+                <a class="btn btn-primary btn-sm" href="{{ route('commandes.create') }}">Créer une commande</a>
+            </x-empty-state>
+        @else
+            <div class="table-wrap">
+                <table class="table">
+                    <caption class="sr-only">Dernières commandes</caption>
+                    <caption class="sr-only">Cinq dernières commandes</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Numéro</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Client</th>
+                            <th scope="col">Condition</th>
+                            <th scope="col" class="num">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($latestCommandes as $commande)
+                            <tr>
+                                <td>
+                                    <a class="cell-code" href="{{ route('commandes.show', $commande) }}">
+                                        {{ $commande->numero_commande }}
+                                    </a>
+                                </td>
+                                <td><x-date :value="$commande->date_commande" /></td>
+                                <td>{{ $commande->client?->nom_client ?? '—' }}</td>
+                                <td><x-condition-badge :condition="$commande->condition" /></td>
+                                <td class="num">
+                                    <x-money :value="$commande->produits->sum(fn ($produit) => $produit->prix_unitaire * $produit->pivot->quantite)" />
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </section>
 @endsection

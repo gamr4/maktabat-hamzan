@@ -2,7 +2,6 @@
     const header = document.querySelector('[data-header]');
     const nav = document.querySelector('[data-nav]');
     const navToggle = document.querySelector('[data-nav-toggle]');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const setNav = (open) => {
         if (!nav || !navToggle) {
@@ -39,13 +38,17 @@
         });
 
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                setNav(false);
+            if (event.key !== 'Escape' || !nav.classList.contains('is-open')) {
+                return;
             }
+
+            setNav(false);
+            navToggle.focus();
         });
 
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 860) {
+        const wide = window.matchMedia('(min-width: 861px)');
+        wide.addEventListener('change', (event) => {
+            if (event.matches) {
                 setNav(false);
             }
         });
@@ -64,6 +67,7 @@
     const sections = sectionLinks
         .map((link) => {
             const id = link.getAttribute('href').slice(1);
+
             return { link, section: document.getElementById(id) };
         })
         .filter(({ section }) => section);
@@ -78,6 +82,7 @@
 
                     sections.forEach(({ link, section }) => {
                         const isActive = section === entry.target;
+
                         link.classList.toggle('is-active', isActive);
 
                         if (isActive) {
@@ -98,6 +103,7 @@
     }
 
     const revealItems = document.querySelectorAll('[data-reveal]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (!reduceMotion && 'IntersectionObserver' in window) {
         const observer = new IntersectionObserver(

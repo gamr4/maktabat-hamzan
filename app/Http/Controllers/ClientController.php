@@ -7,11 +7,25 @@ use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::orderBy('code_client')->paginate(10);
+        $search = trim((string) $request->input('q'));
+        $type = $request->input('type');
 
-        return view('clients.index', compact('clients'));
+        $clients = Client::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('nom_client', 'like', "%{$search}%")
+                        ->orWhere('code_client', 'like', "%{$search}%")
+                        ->orWhere('ville_client', 'like', "%{$search}%");
+                });
+            })
+            ->when(in_array($type, ['PU', 'PA', 'LI', 'AS', 'DI'], true), fn ($query) => $query->where('type_client', $type))
+            ->orderBy('code_client')
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('clients.index', compact('clients', 'search', 'type'));
     }
 
     public function create()

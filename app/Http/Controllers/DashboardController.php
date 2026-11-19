@@ -17,7 +17,7 @@ class DashboardController extends Controller
             'commandes' => Commande::count(),
         ];
 
-        $latestCommandes = Commande::with('client')->latest()->take(5)->get();
+        $latestCommandes = Commande::with(['client', 'produits'])->latest()->take(5)->get();
 
         return view('dashboard', compact('stats', 'latestCommandes'));
     }

@@ -21,8 +21,8 @@ A Laravel web application to manage a stationery business: clients, suppliers, p
 - PHP 8.2+ / Laravel (11 or 12)
 - Blade templates
 - MySQL (or any database supported by Laravel)
-- Tabler Icons (CDN) and a custom stylesheet (`public/css/theme.css`)
-- Landing page assets are plain CSS/JS (`public/css/landing.css`, `public/js/landing.js`) — no asset build required
+- Tabler Icons (CDN) and plain CSS/JS served from `public/` — no asset build required
+- Shared design tokens in `public/css/base.css`, application styles in `public/css/theme.css`, landing styles in `public/css/landing.css`
 
 ## Installation
 
@@ -97,8 +97,12 @@ resources/views/
 ├── produits/
 └── commandes/
 routes/web.php
-public/css/theme.css
+config/papeterie.php          # Client type labels
+resources/views/components/   # Reusable form, table and state components
+public/css/base.css           # Design tokens and shared primitives
+public/css/theme.css          # Application chrome and authentication
 public/css/landing.css        # Neumorphic landing styles
+public/js/app.js              # Confirmation dialogs + order line editor
 public/js/landing.js          # Landing navigation + reveal animations
 ```
 
@@ -125,4 +129,4 @@ Result: `Cli-000001`, `Cli-000002`, ...
 
 ## Author
 
-Laravelers Team 😁😁😁
+Laravelers Team

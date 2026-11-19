@@ -51,9 +51,9 @@
                     <svg class="hub-lines" viewBox="0 0 540 540" preserveAspectRatio="none" aria-hidden="true">
                         <defs>
                             <linearGradient id="flow-line" x1="0" y1="0" x2="1" y2="1">
-                                <stop offset="0" stop-color="#EB5757" stop-opacity=".08" />
-                                <stop offset=".5" stop-color="#EB5757" stop-opacity=".55" />
-                                <stop offset="1" stop-color="#EB5757" stop-opacity=".08" />
+                                <stop offset="0" stop-color="currentColor" stop-opacity=".08" />
+                                <stop offset=".5" stop-color="currentColor" stop-opacity=".55" />
+                                <stop offset="1" stop-color="currentColor" stop-opacity=".08" />
                             </linearGradient>
                         </defs>
                         <path d="M270 270 L120 142" />
@@ -303,7 +303,7 @@
                         </div>
 
                         <div class="spec-footer">
-                            <span class="badge badge--liv">LIV</span>
+                            <span class="badge badge--success">LIV</span>
                             <span class="mono">3 LIGNES / 660,00 DH</span>
                         </div>
                     </div>
@@ -337,7 +337,7 @@
                         <code>Cli-000001</code>
                     </div>
                 </li>
-                <li class="flow-step" data-reveal style="--reveal-delay: 80ms;">
+                <li class="flow-step" data-reveal>
                     <span class="flow-num">02</span>
                     <div>
                         <h3>Le fournisseur alimente le catalogue</h3>
@@ -346,7 +346,7 @@
                         <code>Fr-000001 → Pr-000001</code>
                     </div>
                 </li>
-                <li class="flow-step" data-reveal style="--reveal-delay: 160ms;">
+                <li class="flow-step" data-reveal>
                     <span class="flow-num">03</span>
                     <div>
                         <h3>Le produit rejoint la ligne</h3>
@@ -355,7 +355,7 @@
                         <code>Pr-000001 × 10</code>
                     </div>
                 </li>
-                <li class="flow-step" data-reveal style="--reveal-delay: 240ms;">
+                <li class="flow-step" data-reveal>
                     <span class="flow-num">04</span>
                     <div>
                         <h3>La commande rassemble le tout</h3>

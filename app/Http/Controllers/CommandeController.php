@@ -11,14 +11,25 @@ use Illuminate\Validation\Rule;
 
 class CommandeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = trim((string) $request->input('q'));
+        $condition = $request->input('condition');
+
         $commandes = Commande::with(['client', 'produits'])
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('numero_commande', 'like', "%{$search}%")
+                        ->orWhereHas('client', fn ($client) => $client->where('nom_client', 'like', "%{$search}%"));
+                });
+            })
+            ->when(in_array($condition, ['LIV', 'T30'], true), fn ($query) => $query->where('condition', $condition))
             ->orderByDesc('date_commande')
             ->orderByDesc('numero_commande')
-            ->paginate(10);
+            ->paginate(12)
+            ->withQueryString();
 
-        return view('commandes.index', compact('commandes'));
+        return view('commandes.index', compact('commandes', 'search', 'condition'));
     }
 
     public function create()
