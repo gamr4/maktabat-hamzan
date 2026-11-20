@@ -25,14 +25,23 @@
         <canvas class="auth-field" data-auth-field></canvas>
         <span class="auth-ambient__glow auth-ambient__glow--warm"></span>
         <span class="auth-ambient__glow auth-ambient__glow--cool"></span>
+        <span class="auth-ambient__beam"></span>
     </div>
 
     <a class="skip-link" href="#auth-main">Aller au contenu</a>
 
-    <main class="auth-shell" id="auth-main">
+    <main class="auth-shell" id="auth-main" data-tilt>
+        <div class="auth-shell__sheen" aria-hidden="true"></div>
+
         <section class="auth-aside" aria-labelledby="auth-title">
+            <div class="auth-aside__seam" aria-hidden="true"></div>
+            <div class="auth-aside__scanner" aria-hidden="true"></div>
+
             <a href="{{ route('home') }}" class="brand" aria-label="Papeterie, retour à l'accueil">
-                <span class="brand-mark" aria-hidden="true"><i class="ti ti-packages"></i></span>
+                <span class="brand-mark" aria-hidden="true">
+                    <i class="ti ti-packages"></i>
+                    <span class="brand-orbit" aria-hidden="true"></span>
+                </span>
                 <span class="brand-text">
                     <strong>Papeterie</strong>
                     <small>Gestion des commandes</small>
@@ -45,13 +54,21 @@
                 <p>Retrouvez vos clients, fournisseurs, produits et commandes dans une console unique.</p>
             </div>
 
-            <p class="auth-schematic">Console · Accès sécurisé</p>
-        <ul class="auth-benefits" aria-label="Fonctionnalités principales">
-            <li><i class="ti ti-check" aria-hidden="true"></i> Catalogues organisés</li>
-            <li><i class="ti ti-check" aria-hidden="true"></i> Commandes centralisées</li>
-            <li><i class="ti ti-check" aria-hidden="true"></i> Accès sécurisé</li>
-        </ul>
+            <div class="auth-schematic">
+                <span class="auth-schematic__line" aria-hidden="true">
+                    <span class="auth-schematic__pulse"></span>
+                </span>
+                <span class="auth-schematic__content">
+                    <span class="schematic-ping" aria-hidden="true"></span>
+                    Console · Accès sécurisé
+                </span>
+            </div>
 
+            <ul class="auth-benefits" aria-label="Fonctionnalités principales">
+                <li><i class="ti ti-check" aria-hidden="true"></i> Catalogues organisés</li>
+                <li><i class="ti ti-check" aria-hidden="true"></i> Commandes centralisées</li>
+                <li><i class="ti ti-check" aria-hidden="true"></i> Accès sécurisé</li>
+            </ul>
         </section>
 
         <section class="auth-panel" aria-labelledby="login-title">
