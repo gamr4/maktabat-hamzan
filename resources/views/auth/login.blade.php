@@ -17,9 +17,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/base.css') }}">
     <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
 </head>
 
 <body class="auth">
+    <div class="auth-ambient" aria-hidden="true">
+        <canvas class="auth-field" data-auth-field></canvas>
+        <span class="auth-ambient__glow auth-ambient__glow--warm"></span>
+        <span class="auth-ambient__glow auth-ambient__glow--cool"></span>
+    </div>
+
     <a class="skip-link" href="#auth-main">Aller au contenu</a>
 
     <main class="auth-shell" id="auth-main">
@@ -54,16 +61,59 @@
 
             <form action="{{ route('login') }}" method="POST" class="auth-form">
                 @csrf
+                @php($passwordInvalid = $errors->has('password'))
+
                 <x-input name="email" label="Adresse e-mail" type="email" autocomplete="username" required autofocus />
-                <x-input name="password" label="Mot de passe" type="password" autocomplete="current-password" required />
+
+                <div class="field">
+                    <label for="password">
+                        Mot de passe<span class="req" aria-hidden="true">*</span>
+                    </label>
+
+                    <div class="input-affix">
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            required
+                            autocomplete="current-password"
+                            @if ($passwordInvalid) aria-invalid="true" aria-describedby="password-error" @endif
+                            @class(['input', 'is-invalid' => $passwordInvalid])
+                        >
+                        <button
+                            type="button"
+                            class="pw-toggle"
+                            data-pw-toggle
+                            aria-controls="password"
+                            aria-label="Afficher le mot de passe"
+                            aria-pressed="false"
+                        >
+                            <i class="ti ti-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    <p class="pw-caps" data-pw-caps>
+                        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+                        Verrouillage des majuscules activé
+                    </p>
+
+                    @if ($passwordInvalid)
+                        <p class="field-error" id="password-error">
+                            <i class="ti ti-alert-circle" aria-hidden="true"></i>
+                            {{ $errors->first('password') }}
+                        </p>
+                    @endif
+                </div>
 
                 <label class="remember-me">
                     <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
                     <span>Rester connecté sur cet appareil</span>
                 </label>
 
-                <button type="submit" class="btn btn-primary">
-                    Se connecter <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                <button type="submit" class="btn btn-primary" data-submit>
+                    <span class="btn-label">Se connecter</span>
+                    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                    <span class="btn-spinner" aria-hidden="true"></span>
                 </button>
             </form>
 
@@ -72,6 +122,9 @@
             </a>
         </section>
     </main>
+
+    <script src="{{ asset('js/auth.js') }}" defer></script>
+    <script src="{{ asset('js/auth-ambient.js') }}" defer></script>
 </body>
 
 </html>
