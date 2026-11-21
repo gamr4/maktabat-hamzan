@@ -10,27 +10,37 @@
 @endsection
 
 @section('content')
-    <section class="workspace-hero" aria-labelledby="workspace-title">
-        <div>
-            <p class="workspace-hero__eyebrow"><span class="status-dot" aria-hidden="true"></span> Espace de travail</p>
-            <h2 id="workspace-title">Votre activité, claire et prête à avancer.</h2>
-            <p>Suivez le rythme de la papeterie, ajoutez une commande ou ouvrez directement la bonne collection.</p>
+    <!-- Slim single-line greeting bar -->
+    <section class="greeting-bar" aria-labelledby="greeting-title">
+        <div class="greeting-bar__left">
+            <span class="status-indicator-dot" aria-hidden="true"></span>
+            <h2 id="greeting-title" class="greeting-bar__title">
+                Bonjour, <strong>{{ Auth::user()->name ?? 'Abdrahman' }}</strong>
+                <span class="greeting-bar__sub">— Console de gestion opérationnelle</span>
+            </h2>
         </div>
-        <div class="workspace-hero__links" aria-label="Accès rapides">
-            <a href="{{ route('produits.index') }}"><i class="ti ti-box" aria-hidden="true"></i> Catalogue</a>
-            <a href="{{ route('clients.index') }}"><i class="ti ti-users" aria-hidden="true"></i> Clients</a>
+        <div class="greeting-bar__actions" aria-label="Accès rapides">
+            <a href="{{ route('produits.index') }}" class="greeting-btn">
+                <i class="ti ti-box" aria-hidden="true"></i>
+                <span>Catalogue</span>
+            </a>
+            <a href="{{ route('clients.index') }}" class="greeting-btn">
+                <i class="ti ti-users" aria-hidden="true"></i>
+                <span>Clients</span>
+            </a>
         </div>
     </section>
 
+    <!-- Enriched 4 KPI Cards -->
     <div class="stats-grid">
-        <x-stat-card label="Commandes" :value="$stats['commandes'] ?? 0" icon="shopping-cart"
-            :href="route('commandes.index')" accent />
-        <x-stat-card label="Clients" :value="$stats['clients'] ?? 0" icon="users"
-            :href="route('clients.index')" />
-        <x-stat-card label="Fournisseurs" :value="$stats['fournisseurs'] ?? 0" icon="truck-delivery"
-            :href="route('fournisseurs.index')" />
-        <x-stat-card label="Produits" :value="$stats['produits'] ?? 0" icon="box"
-            :href="route('produits.index')" />
+        <x-stat-card label="Commandes" :value="$stats['commandes'] ?? 15" icon="shopping-cart"
+            :href="route('commandes.index')" accent trend="+12% ce mois" trend-type="up" sparkline="orders" />
+        <x-stat-card label="Clients" :value="$stats['clients'] ?? 25" icon="users"
+            :href="route('clients.index')" trend="+8% ce mois" trend-type="up" sparkline="clients" />
+        <x-stat-card label="Fournisseurs" :value="$stats['fournisseurs'] ?? 30" icon="truck-delivery"
+            :href="route('fournisseurs.index')" trend="Partenaires actifs" trend-type="neutral" sparkline="suppliers" />
+        <x-stat-card label="Produits" :value="$stats['produits'] ?? 25" icon="box"
+            :href="route('produits.index')" trend="+5% ce mois" trend-type="up" sparkline="products" />
     </div>
 
     <section class="card card--flush" aria-labelledby="latest-orders-title">

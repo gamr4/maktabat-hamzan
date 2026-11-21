@@ -31,6 +31,16 @@
                     <article class="order-card">
                         <div class="order-card__head"><div><span class="code-chip">{{ $commande->numero_commande }}</span><h3><a href="{{ route('commandes.show', $commande->numero_commande) }}">{{ $commande->client?->nom_client ?? 'Client non renseigné' }}</a></h3></div><x-condition-badge :condition="$commande->condition" /></div>
                         <dl class="order-card__facts"><div><dt>Date</dt><dd><x-date :value="$commande->date_commande" /></dd></div><div><dt>Articles</dt><dd>{{ $commande->produits->sum('pivot.quantite') }}</dd></div><div><dt>Total</dt><dd><x-money :value="$commande->produits->sum(fn ($produit) => $produit->prix_unitaire * $produit->pivot->quantite)" /></dd></div></dl>
+                        <div class="order-card__preview">
+                            <i class="ti ti-package order-card__preview-icon" aria-hidden="true"></i>
+                            <span class="order-card__preview-text" title="{{ $commande->produits->pluck('designation')->join(', ') }}">
+                                @if ($commande->produits->isNotEmpty())
+                                    {{ $commande->produits->map(fn ($p) => $p->designation . ($p->pivot->quantite > 1 ? ' (×' . $p->pivot->quantite . ')' : ''))->join(' · ') }}
+                                @else
+                                    <span class="text-faint">Aucun article enregistré</span>
+                                @endif
+                            </span>
+                        </div>
                         <footer class="catalogue-card__footer"><a class="text-link" href="{{ route('commandes.show', $commande->numero_commande) }}">Ouvrir <i class="ti ti-arrow-up-right" aria-hidden="true"></i></a><div class="table-actions"><a class="icon-btn" href="{{ route('commandes.edit', $commande->numero_commande) }}" title="Modifier" aria-label="Modifier la commande {{ $commande->numero_commande }}"><i class="ti ti-edit" aria-hidden="true"></i></a><form class="inline-form" action="{{ route('commandes.destroy', $commande->numero_commande) }}" method="POST" data-confirm="Voulez-vous vraiment supprimer cette commande ?">@csrf @method('DELETE')<button type="submit" class="icon-btn icon-btn--danger" title="Supprimer" aria-label="Supprimer la commande {{ $commande->numero_commande }}"><i class="ti ti-trash" aria-hidden="true"></i></button></form></div></footer>
                     </article>
                 @endforeach

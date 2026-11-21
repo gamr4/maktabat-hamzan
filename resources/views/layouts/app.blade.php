@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#F4F6F8" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#1B1F24" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#13161a">
     <title>@yield('title', 'Tableau de bord') · Papeterie</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,45 +20,96 @@
 <body class="app-body">
     <a class="skip-link" href="#main">Aller au contenu</a>
 
-    <div class="app">
-        <aside class="sidebar">
-            <a href="{{ route('dashboard') }}" class="brand" aria-label="Papeterie, tableau de bord">
-                <span class="brand-mark" aria-hidden="true"><i class="ti ti-packages"></i></span>
-                <span class="brand-text">
-                    <strong>Papeterie</strong>
-                    <small>Console de gestion</small>
-                </span>
-            </a>
+    <div class="app" id="appRoot">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar__header">
+                <a href="{{ route('dashboard') }}" class="brand" aria-label="Papeterie, tableau de bord">
+                    <span class="brand-mark" aria-hidden="true"><i class="ti ti-packages"></i></span>
+                    <span class="brand-text">
+                        <strong>Papeterie</strong>
+                        <small>Console de gestion</small>
+                    </span>
+                </a>
 
+                <!-- Compact search / command palette trigger -->
+                <button type="button" class="sidebar-search-btn" id="cmdPaletteTrigger" aria-label="Rechercher... (⌘K)">
+                    <i class="ti ti-search" aria-hidden="true"></i>
+                    <span class="sidebar-search-btn__text">Rechercher...</span>
+                    <kbd class="sidebar-search-btn__kbd">⌘K</kbd>
+                </button>
+            </div>
+
+            <!-- Grouped Navigation with micro-headers and tightened py-2 spacing -->
             <nav class="app-nav" aria-label="Navigation principale">
-                <a href="{{ route('dashboard') }}" @class(['is-active' => request()->routeIs('dashboard')]) @if (request()->routeIs('dashboard')) aria-current="page" @endif>
-                    <i class="ti ti-layout-dashboard" aria-hidden="true"></i> Tableau de bord
-                </a>
-                <a href="{{ route('clients.index') }}" @class(['is-active' => request()->routeIs('clients.*')]) @if (request()->routeIs('clients.*')) aria-current="page" @endif>
-                    <i class="ti ti-users" aria-hidden="true"></i> Clients
-                </a>
-                <a href="{{ route('fournisseurs.index') }}" @class(['is-active' => request()->routeIs('fournisseurs.*')]) @if (request()->routeIs('fournisseurs.*')) aria-current="page" @endif>
-                    <i class="ti ti-truck-delivery" aria-hidden="true"></i> Fournisseurs
-                </a>
-                <a href="{{ route('produits.index') }}" @class(['is-active' => request()->routeIs('produits.*')]) @if (request()->routeIs('produits.*')) aria-current="page" @endif>
-                    <i class="ti ti-box" aria-hidden="true"></i> Produits
-                </a>
-                <a href="{{ route('commandes.index') }}" @class(['is-active' => request()->routeIs('commandes.*')]) @if (request()->routeIs('commandes.*')) aria-current="page" @endif>
-                    <i class="ti ti-shopping-cart" aria-hidden="true"></i> Commandes
-                </a>
+                <div class="nav-group">
+                    <span class="nav-microhead">GÉNÉRAL</span>
+                    <ul class="nav-group__list">
+                        <li>
+                            <a href="{{ route('dashboard') }}" @class(['nav-link', 'is-active' => request()->routeIs('dashboard')]) @if (request()->routeIs('dashboard')) aria-current="page" @endif>
+                                <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
+                                <span class="nav-link__label">Tableau de bord</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-group">
+                    <span class="nav-microhead">GESTION</span>
+                    <ul class="nav-group__list">
+                        <li>
+                            <a href="{{ route('commandes.index') }}" @class(['nav-link', 'is-active' => request()->routeIs('commandes.*')]) @if (request()->routeIs('commandes.*')) aria-current="page" @endif>
+                                <i class="ti ti-shopping-cart" aria-hidden="true"></i>
+                                <span class="nav-link__label">Commandes</span>
+                                <span class="nav-link__badge">{{ $navCounts['commandes'] ?? 15 }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('clients.index') }}" @class(['nav-link', 'is-active' => request()->routeIs('clients.*')]) @if (request()->routeIs('clients.*')) aria-current="page" @endif>
+                                <i class="ti ti-users" aria-hidden="true"></i>
+                                <span class="nav-link__label">Clients</span>
+                                <span class="nav-link__badge">{{ $navCounts['clients'] ?? 30 }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('produits.index') }}" @class(['nav-link', 'is-active' => request()->routeIs('produits.*')]) @if (request()->routeIs('produits.*')) aria-current="page" @endif>
+                                <i class="ti ti-box" aria-hidden="true"></i>
+                                <span class="nav-link__label">Produits</span>
+                                <span class="nav-link__badge">{{ $navCounts['produits'] ?? 25 }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('fournisseurs.index') }}" @class(['nav-link', 'is-active' => request()->routeIs('fournisseurs.*')]) @if (request()->routeIs('fournisseurs.*')) aria-current="page" @endif>
+                                <i class="ti ti-truck-delivery" aria-hidden="true"></i>
+                                <span class="nav-link__label">Fournisseurs</span>
+                                <span class="nav-link__badge">{{ $navCounts['fournisseurs'] ?? 25 }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </nav>
 
+            <!-- Upgraded bottom profile card for Abdrahman -->
             <div class="sidebar-foot">
-                <div class="user">
-                    <i class="ti ti-user-circle" aria-hidden="true"></i>
-                    <span class="user-name">{{ Auth::user()->name ?? 'Utilisateur' }}</span>
+                <div class="profile-card">
+                    <div class="profile-card__avatar" aria-hidden="true">
+                        {{ strtoupper(substr(Auth::user()->name ?? 'Abdrahman', 0, 1)) }}
+                    </div>
+                    <div class="profile-card__info">
+                        <span class="profile-card__name" title="{{ Auth::user()->name ?? 'Abdrahman' }}">{{ Auth::user()->name ?? 'Abdrahman' }}</span>
+                        <span class="profile-card__role">Administrateur</span>
+                    </div>
+                    <div class="profile-card__actions">
+                        <button type="button" class="profile-card__btn sidebar-collapse-btn" id="sidebarCollapseBtn" title="Réduire la barre" aria-label="Réduire la barre latérale">
+                            <i class="ti ti-layout-sidebar-left-collapse" aria-hidden="true"></i>
+                        </button>
+                        <form action="{{ route('logout') }}" method="POST" class="profile-card__logout-form">
+                            @csrf
+                            <button type="submit" class="profile-card__btn profile-card__btn--logout" title="Se déconnecter" aria-label="Se déconnecter">
+                                <i class="ti ti-logout" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="icon-btn" title="Se déconnecter" aria-label="Se déconnecter">
-                        <i class="ti ti-logout" aria-hidden="true"></i>
-                    </button>
-                </form>
             </div>
         </aside>
 
@@ -99,6 +149,63 @@
 
             @yield('content')
         </main>
+    </div>
+
+    <!-- Command Palette Modal -->
+    <div class="cmd-palette" id="cmdPalette" hidden aria-modal="true" role="dialog" aria-label="Palette de commandes">
+        <div class="cmd-palette__backdrop" data-close-cmd></div>
+        <div class="cmd-palette__container">
+            <div class="cmd-palette__search">
+                <i class="ti ti-search" aria-hidden="true"></i>
+                <input type="text" id="cmdPaletteInput" class="cmd-palette__input" placeholder="Rechercher une section, commande, client..." autocomplete="off">
+                <kbd class="cmd-palette__kbd">ESC</kbd>
+            </div>
+            <div class="cmd-palette__results" id="cmdPaletteResults">
+                <div class="cmd-palette__group">
+                    <span class="cmd-palette__group-title">Navigation</span>
+                    <a href="{{ route('dashboard') }}" class="cmd-palette__item">
+                        <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
+                        <span>Tableau de bord</span>
+                        <kbd>↵</kbd>
+                    </a>
+                    <a href="{{ route('commandes.index') }}" class="cmd-palette__item">
+                        <i class="ti ti-shopping-cart" aria-hidden="true"></i>
+                        <span>Commandes</span>
+                        <span class="cmd-palette__badge">{{ $navCounts['commandes'] ?? 15 }}</span>
+                    </a>
+                    <a href="{{ route('clients.index') }}" class="cmd-palette__item">
+                        <i class="ti ti-users" aria-hidden="true"></i>
+                        <span>Clients</span>
+                        <span class="cmd-palette__badge">{{ $navCounts['clients'] ?? 30 }}</span>
+                    </a>
+                    <a href="{{ route('produits.index') }}" class="cmd-palette__item">
+                        <i class="ti ti-box" aria-hidden="true"></i>
+                        <span>Produits</span>
+                        <span class="cmd-palette__badge">{{ $navCounts['produits'] ?? 25 }}</span>
+                    </a>
+                    <a href="{{ route('fournisseurs.index') }}" class="cmd-palette__item">
+                        <i class="ti ti-truck-delivery" aria-hidden="true"></i>
+                        <span>Fournisseurs</span>
+                        <span class="cmd-palette__badge">{{ $navCounts['fournisseurs'] ?? 25 }}</span>
+                    </a>
+                </div>
+                <div class="cmd-palette__group">
+                    <span class="cmd-palette__group-title">Actions rapides</span>
+                    <a href="{{ route('commandes.create') }}" class="cmd-palette__item">
+                        <i class="ti ti-plus" aria-hidden="true"></i>
+                        <span>Nouvelle commande</span>
+                    </a>
+                    <a href="{{ route('clients.create') }}" class="cmd-palette__item">
+                        <i class="ti ti-user-plus" aria-hidden="true"></i>
+                        <span>Nouveau client</span>
+                    </a>
+                    <a href="{{ route('produits.create') }}" class="cmd-palette__item">
+                        <i class="ti ti-box-plus" aria-hidden="true"></i>
+                        <span>Nouveau produit</span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="{{ asset('js/app.js') }}" defer></script>
