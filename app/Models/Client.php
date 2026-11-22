@@ -1,16 +1,19 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use App\Models\Concerns\HasCode;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Database\Factories\ClientFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
     use HasCode;
     use HasFactory;
+
     protected static function newFactory()
     {
         return ClientFactory::new();
@@ -33,6 +36,7 @@ class Client extends Model
         'ville_client',
         'type_client',
         'remise_speciale',
+        'user_id',
     ];
 
     protected function casts(): array
@@ -40,6 +44,11 @@ class Client extends Model
         return [
             'remise_speciale' => 'integer',
         ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function commandes(): HasMany

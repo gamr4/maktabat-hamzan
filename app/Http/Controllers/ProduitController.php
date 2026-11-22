@@ -2,14 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produit;
 use App\Models\Fournisseur;
+use App\Models\Produit;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ProduitController extends Controller
 {
+    protected function checkStaffAccess(): void
+    {
+        if (! auth()->check() || ! in_array(auth()->user()->role, [User::ROLE_ADMIN, User::ROLE_GESTIONNAIRE], true)) {
+            abort(403, 'Accès non autorisé : rôle insuffisant.');
+        }
+    }
+
     public function index()
     {
+        $this->checkStaffAccess();
+
         $search = trim((string) request('q'));
         $famille = request('famille');
 
@@ -31,6 +41,8 @@ class ProduitController extends Controller
 
     public function create()
     {
+        $this->checkStaffAccess();
+
         $fournisseurs = Fournisseur::orderBy('nom_fournisseur')->get();
 
         return view('produits.create', compact('fournisseurs'));
@@ -38,6 +50,8 @@ class ProduitController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkStaffAccess();
+
         Produit::create($request->validate([
             'designation' => ['required', 'string', 'max:255'],
             'prix_unitaire' => ['required', 'numeric', 'min:0'],
@@ -50,6 +64,8 @@ class ProduitController extends Controller
 
     public function show(string $id)
     {
+        $this->checkStaffAccess();
+
         $produit = Produit::with('fournisseur')->findOrFail($id);
 
         return view('produits.show', compact('produit'));
@@ -57,6 +73,8 @@ class ProduitController extends Controller
 
     public function edit(string $id)
     {
+        $this->checkStaffAccess();
+
         $produit = Produit::findOrFail($id);
         $fournisseurs = Fournisseur::orderBy('nom_fournisseur')->get();
 
@@ -65,6 +83,8 @@ class ProduitController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $this->checkStaffAccess();
+
         $produit = Produit::findOrFail($id);
         $produit->update($request->validate([
             'designation' => ['required', 'string', 'max:255'],
@@ -78,6 +98,10 @@ class ProduitController extends Controller
 
     public function destroy(string $id)
     {
+        if (! auth()->check() || ! auth()->user()->isAdmin()) {
+            abort(403, 'Seul un administrateur peut supprimer un produit.');
+        }
+
         $produit = Produit::findOrFail($id);
         if ($produit->commandes()->exists()) {
             return back()->withErrors('Ce produit est utilisé dans des commandes et ne peut pas être supprimé.');

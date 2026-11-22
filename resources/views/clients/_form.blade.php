@@ -23,6 +23,18 @@
         <x-input name="remise_speciale" label="Remise spéciale (%)" type="number" min="0" max="100"
             inputmode="numeric" :value="$client?->remise_speciale ?? 0" required />
 
+        @if (! $client)
+            <div style="grid-column: 1 / -1; background: rgba(56, 189, 248, 0.05); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: var(--radius-sm, 8px); padding: 0.85rem 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 500; cursor: pointer; color: #e6edf3;">
+                    <input type="checkbox" name="create_account" value="1" checked style="width: auto;">
+                    <span>Créer automatiquement un compte d'accès pour ce client</span>
+                </label>
+                <p style="font-size: 0.8rem; color: #8b949e; margin: 0.35rem 0 0 1.5rem;">
+                    Un compte de connexion sera généré avec le mot de passe initial <code>password</code>.
+                </p>
+            </div>
+        @endif
+
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
                 <i class="ti ti-device-floppy" aria-hidden="true"></i> Enregistrer

@@ -4,11 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Fournisseur;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class FournisseurController extends Controller
 {
+    protected function checkPermission(): void
+    {
+        if (! auth()->check() || ! auth()->user()->isAdmin()) {
+            abort(403, 'Accès non autorisé : réservé aux administrateurs.');
+        }
+    }
+
     public function index(Request $request)
     {
+        $this->checkPermission();
+
         $search = trim((string) $request->input('q'));
 
         $fournisseurs = Fournisseur::query()
@@ -29,11 +39,15 @@ class FournisseurController extends Controller
 
     public function create()
     {
+        $this->checkPermission();
+
         return view('fournisseurs.create');
     }
 
     public function store(Request $request)
     {
+        $this->checkPermission();
+
         Fournisseur::create($request->validate([
             'nom_fournisseur' => ['required', 'string', 'max:255'],
             'rue_fournisseur' => ['required', 'string', 'max:255'],
@@ -49,6 +63,8 @@ class FournisseurController extends Controller
 
     public function show(string $id)
     {
+        $this->checkPermission();
+
         $fournisseur = Fournisseur::with('produits')->findOrFail($id);
 
         return view('fournisseurs.show', compact('fournisseur'));
@@ -56,6 +72,8 @@ class FournisseurController extends Controller
 
     public function edit(string $id)
     {
+        $this->checkPermission();
+
         $fournisseur = Fournisseur::findOrFail($id);
 
         return view('fournisseurs.edit', compact('fournisseur'));
@@ -63,6 +81,8 @@ class FournisseurController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $this->checkPermission();
+
         $fournisseur = Fournisseur::findOrFail($id);
         $fournisseur->update($request->validate([
             'nom_fournisseur' => ['required', 'string', 'max:255'],
@@ -79,6 +99,8 @@ class FournisseurController extends Controller
 
     public function destroy(string $id)
     {
+        $this->checkPermission();
+
         $fournisseur = Fournisseur::findOrFail($id);
         if ($fournisseur->produits()->exists()) {
             return back()->withErrors('Ce fournisseur a des produits et ne peut pas être supprimé.');

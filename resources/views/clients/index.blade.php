@@ -34,6 +34,17 @@
                             <div class="catalogue-card__meta"><span class="code-chip">{{ $client->code_client }}</span><span class="badge badge--neutral" title="{{ config('papeterie.client_types.' . $client->type_client) }}">{{ $client->type_client }}</span></div>
                             <h3><a href="{{ route('clients.show', $client->code_client) }}">{{ $client->nom_client }}</a></h3>
                             <p class="catalogue-card__source"><i class="ti ti-map-pin" aria-hidden="true"></i> {{ $client->ville_client }}, {{ $client->code_postal_client }}</p>
+                            <p style="margin: 0.25rem 0 0; font-size: 0.78rem;">
+                                @if ($client->user)
+                                    <span style="color: #34d399; display: inline-flex; align-items: center; gap: 0.25rem;" title="Compte utilisateur actif">
+                                        <i class="ti ti-user-check" aria-hidden="true"></i> {{ $client->user->email }}
+                                    </span>
+                                @else
+                                    <span style="color: #8b949e; display: inline-flex; align-items: center; gap: 0.25rem;" title="Aucun compte utilisateur">
+                                        <i class="ti ti-user-off" aria-hidden="true"></i> Aucun compte
+                                    </span>
+                                @endif
+                            </p>
                         </div>
                         <footer class="catalogue-card__footer"><span class="catalogue-card__detail">Remise <strong>{{ $client->remise_speciale }} %</strong></span><div class="table-actions"><a class="icon-btn" href="{{ route('clients.show', $client->code_client) }}" title="Voir la fiche" aria-label="Voir {{ $client->nom_client }}"><i class="ti ti-arrow-up-right" aria-hidden="true"></i></a><a class="icon-btn" href="{{ route('clients.edit', $client->code_client) }}" title="Modifier" aria-label="Modifier {{ $client->nom_client }}"><i class="ti ti-edit" aria-hidden="true"></i></a><form class="inline-form" action="{{ route('clients.destroy', $client->code_client) }}" method="POST" data-confirm="Voulez-vous vraiment supprimer ce client ?">@csrf @method('DELETE')<button type="submit" class="icon-btn icon-btn--danger" title="Supprimer" aria-label="Supprimer {{ $client->nom_client }}"><i class="ti ti-trash" aria-hidden="true"></i></button></form></div></footer>
                     </article>
@@ -65,6 +76,7 @@
                             <th scope="col">Nom</th>
                             <th scope="col">Adresse</th>
                             <th scope="col">Ville</th>
+                            <th scope="col">Compte d'accès</th>
                             <th scope="col">Type</th>
                             <th scope="col" class="num">Remise</th>
                             <th scope="col" class="cell-actions"><span class="sr-only">Actions</span></th>
@@ -77,6 +89,17 @@
                                 <td>{{ $client->nom_client }}</td>
                                 <td>{{ $client->rue_client }}, {{ $client->code_postal_client }}</td>
                                 <td>{{ $client->ville_client }}</td>
+                                <td>
+                                    @if ($client->user)
+                                        <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; font-size: 0.75rem;">
+                                            <i class="ti ti-user-check" aria-hidden="true"></i> {{ $client->user->email }}
+                                        </span>
+                                    @else
+                                        <span class="badge badge--neutral" style="font-size: 0.75rem;">
+                                            <i class="ti ti-user-x" aria-hidden="true"></i> Sans compte
+                                        </span>
+                                    @endif
+                                </td>
                                 <td>
                                     <span class="badge badge--neutral"
                                         title="{{ config('papeterie.client_types.' . $client->type_client) }}">

@@ -6,14 +6,17 @@ use App\Http\Controllers\{
     CommandeController,
     DashboardController,
     FournisseurController,
+    PortailController,
     ProduitController
 };
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('dashboard')
-        : view('landing');
+    if (! auth()->check()) {
+        return view('landing');
+    }
+
+    return redirect()->route('dashboard');
 })->name('home');
 
 Route::middleware('guest')->group(function () {
@@ -26,8 +29,21 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('clients', ClientController::class);
-    Route::resource('fournisseurs', FournisseurController::class);
-    Route::resource('produits', ProduitController::class);
-    Route::resource('commandes', CommandeController::class);
+    // Management routes: Admin & Gestionnaire
+    Route::middleware('role:admin,gestionnaire')->group(function () {
+        Route::resource('clients', ClientController::class);
+        Route::post('clients/{client}/account', [ClientController::class, 'createAccount'])->name('clients.account');
+        Route::resource('produits', ProduitController::class);
+        Route::resource('commandes', CommandeController::class);
+    });
+
+    // Admin-only routes
+    Route::middleware('role:admin')->group(function () {
+        Route::resource('fournisseurs', FournisseurController::class);
+    });
+
+    // Portal routes redirect cleanly to the role dashboard
+    Route::any('/portail/{any?}', function () {
+        return redirect()->route('dashboard');
+    })->where('any', '.*')->name('portail.dashboard');
 });

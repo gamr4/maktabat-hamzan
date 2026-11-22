@@ -5,14 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Commande;
 use App\Models\Produit;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class CommandeController extends Controller
 {
+    protected function checkStaffAccess(): void
+    {
+        if (! auth()->check() || ! in_array(auth()->user()->role, [User::ROLE_ADMIN, User::ROLE_GESTIONNAIRE], true)) {
+            abort(403, 'Accès non autorisé : rôle insuffisant.');
+        }
+    }
+
     public function index(Request $request)
     {
+        $this->checkStaffAccess();
+
         $search = trim((string) $request->input('q'));
         $condition = $request->input('condition');
 
@@ -34,6 +44,8 @@ class CommandeController extends Controller
 
     public function create()
     {
+        $this->checkStaffAccess();
+
         return view('commandes.create', [
             'clients' => Client::orderBy('nom_client')->get(),
             'produits' => Produit::orderBy('designation')->get(),
@@ -42,6 +54,8 @@ class CommandeController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkStaffAccess();
+
         $data = $this->validateCommande($request);
 
         $commande = DB::transaction(function () use ($data) {
@@ -65,6 +79,8 @@ class CommandeController extends Controller
 
     public function show(string $commande)
     {
+        $this->checkStaffAccess();
+
         $commande = Commande::with(['client', 'produits'])
             ->findOrFail($commande);
 
@@ -73,6 +89,8 @@ class CommandeController extends Controller
 
     public function edit(string $commande)
     {
+        $this->checkStaffAccess();
+
         $commande = Commande::with('produits')
             ->findOrFail($commande);
 
@@ -85,6 +103,8 @@ class CommandeController extends Controller
 
     public function update(Request $request, string $commande)
     {
+        $this->checkStaffAccess();
+
         $commande = Commande::findOrFail($commande);
         $data = $this->validateCommande($request);
 
@@ -107,6 +127,10 @@ class CommandeController extends Controller
 
     public function destroy(string $commande)
     {
+        if (! auth()->check() || ! auth()->user()->isAdmin()) {
+            abort(403, 'Seul un administrateur peut supprimer une commande.');
+        }
+
         $commande = Commande::findOrFail($commande);
 
         DB::transaction(function () use ($commande) {

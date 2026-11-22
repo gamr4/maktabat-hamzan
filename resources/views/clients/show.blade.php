@@ -37,6 +37,35 @@
                         <dt>Commandes</dt>
                         <dd class="mono">{{ $client->commandes->count() }}</dd>
                     </div>
+                    <div class="meta-row">
+                        <dt>Compte utilisateur</dt>
+                        <dd>
+                            @if ($client->user)
+                                <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                                    <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">
+                                        <i class="ti ti-user-check" aria-hidden="true"></i> {{ $client->user->email }}
+                                    </span>
+                                    <span style="font-size: 0.8rem; color: #8b949e;">({{ $client->user->name }})</span>
+                                    <form method="POST" action="{{ route('clients.account', $client->code_client) }}" style="margin: 0;" onsubmit="return confirm('Réinitialiser le mot de passe pour ce compte ?');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-ghost btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                            <i class="ti ti-key" aria-hidden="true"></i> Réinitialiser mdp
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
+                                <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                                    <span class="badge badge--neutral">Aucun compte lié</span>
+                                    <form method="POST" action="{{ route('clients.account', $client->code_client) }}" style="margin: 0;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+                                            <i class="ti ti-user-plus" aria-hidden="true"></i> Créer le compte client
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        </dd>
+                    </div>
                 </dl>
             </div>
         </section>

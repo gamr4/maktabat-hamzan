@@ -53,6 +53,7 @@
                     </ul>
                 </div>
 
+                @if ($role === 'admin' || $role === 'gestionnaire')
                 <div class="nav-group">
                     <span class="nav-microhead">GESTION</span>
                     <ul class="nav-group__list">
@@ -77,6 +78,7 @@
                                 <span class="nav-link__badge">{{ $navCounts['produits'] ?? 25 }}</span>
                             </a>
                         </li>
+                        @if ($role === 'admin')
                         <li>
                             <a href="{{ route('fournisseurs.index') }}" @class(['nav-link', 'is-active' => request()->routeIs('fournisseurs.*')]) @if (request()->routeIs('fournisseurs.*')) aria-current="page" @endif>
                                 <i class="ti ti-truck-delivery" aria-hidden="true"></i>
@@ -84,19 +86,21 @@
                                 <span class="nav-link__badge">{{ $navCounts['fournisseurs'] ?? 25 }}</span>
                             </a>
                         </li>
+                        @endif
                     </ul>
                 </div>
+                @endif
             </nav>
 
-            <!-- Upgraded bottom profile card for Abdrahman -->
+            <!-- Upgraded bottom profile card -->
             <div class="sidebar-foot">
                 <div class="profile-card">
                     <div class="profile-card__avatar" aria-hidden="true">
-                        {{ strtoupper(substr(Auth::user()->name ?? 'Abdrahman', 0, 1)) }}
+                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
                     </div>
                     <div class="profile-card__info">
-                        <span class="profile-card__name" title="{{ Auth::user()->name ?? 'Abdrahman' }}">{{ Auth::user()->name ?? 'Abdrahman' }}</span>
-                        <span class="profile-card__role">Administrateur</span>
+                        <span class="profile-card__name" title="{{ Auth::user()->name ?? 'Utilisateur' }}">{{ Auth::user()->name ?? 'Utilisateur' }}</span>
+                        <span class="profile-card__role">{{ Auth::user()->role_label ?? 'Administrateur' }}</span>
                     </div>
                     <div class="profile-card__actions">
                         <button type="button" class="profile-card__btn sidebar-collapse-btn" id="sidebarCollapseBtn" title="Réduire la barre" aria-label="Réduire la barre latérale">
@@ -168,6 +172,7 @@
                         <span>Tableau de bord</span>
                         <kbd>↵</kbd>
                     </a>
+                    @if ($role === 'admin' || $role === 'gestionnaire')
                     <a href="{{ route('commandes.index') }}" class="cmd-palette__item">
                         <i class="ti ti-shopping-cart" aria-hidden="true"></i>
                         <span>Commandes</span>
@@ -183,12 +188,22 @@
                         <span>Produits</span>
                         <span class="cmd-palette__badge">{{ $navCounts['produits'] ?? 25 }}</span>
                     </a>
+                    @endif
+                    @if ($role === 'admin')
                     <a href="{{ route('fournisseurs.index') }}" class="cmd-palette__item">
                         <i class="ti ti-truck-delivery" aria-hidden="true"></i>
                         <span>Fournisseurs</span>
                         <span class="cmd-palette__badge">{{ $navCounts['fournisseurs'] ?? 25 }}</span>
                     </a>
+                    @endif
+                    @if ($role === 'client')
+                    <a href="{{ route('portail.dashboard') }}" class="cmd-palette__item">
+                        <i class="ti ti-user-circle" aria-hidden="true"></i>
+                        <span>Espace Client</span>
+                    </a>
+                    @endif
                 </div>
+                @if ($role === 'admin' || $role === 'gestionnaire')
                 <div class="cmd-palette__group">
                     <span class="cmd-palette__group-title">Actions rapides</span>
                     <a href="{{ route('commandes.create') }}" class="cmd-palette__item">
@@ -204,6 +219,7 @@
                         <span>Nouveau produit</span>
                     </a>
                 </div>
+                @endif
             </div>
         </div>
     </div>

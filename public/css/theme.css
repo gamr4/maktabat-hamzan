@@ -714,6 +714,10 @@ html.dark .app-body,
     color: #34d399;
 }
 
+.stat-card__trend--down {
+    color: #f87171;
+}
+
 .stat-card__trend--neutral {
     color: #8b95a1;
 }

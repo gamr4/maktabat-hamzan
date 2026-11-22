@@ -7,6 +7,7 @@
     'trend' => '+12% ce mois',
     'trendType' => 'up',
     'sparkline' => 'orders',
+    'unit' => null,
 ])
 
 <a
@@ -24,7 +25,7 @@
     </div>
 
     <div class="stat-card__middle">
-        <span class="stat-card__value">{{ $value }}</span>
+        <span class="stat-card__value">{{ $value }}@if($unit) <span style="font-size: 0.6em; font-weight: 500; opacity: 0.85; margin-left: 0.25rem;">{{ $unit }}</span>@endif</span>
         @if ($sparkline)
             <div class="stat-card__sparkline" aria-hidden="true">
                 @if ($sparkline === 'orders')
@@ -57,10 +58,13 @@
             <span @class([
                 'stat-card__trend',
                 'stat-card__trend--up' => $trendType === 'up',
+                'stat-card__trend--down' => $trendType === 'down',
                 'stat-card__trend--neutral' => $trendType === 'neutral',
             ])>
                 @if ($trendType === 'up')
                     <i class="ti ti-trending-up" aria-hidden="true"></i>
+                @elseif ($trendType === 'down')
+                    <i class="ti ti-trending-down" aria-hidden="true"></i>
                 @else
                     <i class="ti ti-point-filled" aria-hidden="true"></i>
                 @endif
