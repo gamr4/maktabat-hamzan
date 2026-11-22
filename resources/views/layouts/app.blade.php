@@ -50,6 +50,12 @@
                                 <span class="nav-link__label">Tableau de bord</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('profile.show') }}" @class(['nav-link', 'is-active' => request()->routeIs('profile.*')]) @if (request()->routeIs('profile.*')) aria-current="page" @endif>
+                                <i class="ti ti-user-circle" aria-hidden="true"></i>
+                                <span class="nav-link__label">Mon profil</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
@@ -95,13 +101,15 @@
             <!-- Upgraded bottom profile card -->
             <div class="sidebar-foot">
                 <div class="profile-card">
-                    <div class="profile-card__avatar" aria-hidden="true">
-                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
-                    </div>
-                    <div class="profile-card__info">
-                        <span class="profile-card__name" title="{{ Auth::user()->name ?? 'Utilisateur' }}">{{ Auth::user()->name ?? 'Utilisateur' }}</span>
-                        <span class="profile-card__role">{{ Auth::user()->role_label ?? 'Administrateur' }}</span>
-                    </div>
+                    <a href="{{ route('profile.show') }}" class="profile-card__identity" title="Voir mon profil" aria-label="Voir mon profil">
+                        <div class="profile-card__avatar" aria-hidden="true">
+                            {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                        </div>
+                        <div class="profile-card__info">
+                            <span class="profile-card__name" title="{{ Auth::user()->name ?? 'Utilisateur' }}">{{ Auth::user()->name ?? 'Utilisateur' }}</span>
+                            <span class="profile-card__role">{{ Auth::user()->role_label ?? 'Administrateur' }}</span>
+                        </div>
+                    </a>
                     <div class="profile-card__actions">
                         <button type="button" class="profile-card__btn sidebar-collapse-btn" id="sidebarCollapseBtn" title="Réduire la barre" aria-label="Réduire la barre latérale">
                             <i class="ti ti-layout-sidebar-left-collapse" aria-hidden="true"></i>
@@ -170,6 +178,11 @@
                     <a href="{{ route('dashboard') }}" class="cmd-palette__item">
                         <i class="ti ti-layout-dashboard" aria-hidden="true"></i>
                         <span>Tableau de bord</span>
+                        <kbd>↵</kbd>
+                    </a>
+                    <a href="{{ route('profile.show') }}" class="cmd-palette__item">
+                        <i class="ti ti-user-circle" aria-hidden="true"></i>
+                        <span>Mon profil</span>
                         <kbd>↵</kbd>
                     </a>
                     @if ($role === 'admin' || $role === 'gestionnaire')

@@ -71,6 +71,9 @@ All routes except login are protected by the `auth` middleware.
 | POST | `/login` | none | Authenticate |
 | POST | `/logout` | `logout` | Log out |
 | GET | `/dashboard` | `dashboard` | Dashboard |
+| GET | `/profil` | `profile.show` | Profile page for every role |
+| PUT | `/profil` | `profile.update` | Update own name and email |
+| PUT | `/profil/mot-de-passe` | `profile.password` | Change own password |
 | Resource | `/clients` | `clients.*` | Clients CRUD |
 | Resource | `/fournisseurs` | `fournisseurs.*` | Fournisseurs CRUD |
 | Resource | `/produits` | `produits.*` | Produits CRUD |

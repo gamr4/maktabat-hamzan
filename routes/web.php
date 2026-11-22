@@ -7,7 +7,8 @@ use App\Http\Controllers\{
     DashboardController,
     FournisseurController,
     PortailController,
-    ProduitController
+    ProduitController,
+    ProfileController
 };
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Self-service profile for every role
+    Route::get('/profil', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profil/mot-de-passe', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    // Legacy portal profile links
+    Route::redirect('/portail/profil', '/profil')->name('portail.profil');
 
     // Management routes: Admin & Gestionnaire
     Route::middleware('role:admin,gestionnaire')->group(function () {
