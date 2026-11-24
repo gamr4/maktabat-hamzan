@@ -59,6 +59,20 @@
                     </ul>
                 </div>
 
+                @if ($role === 'client')
+                <div class="nav-group">
+                    <span class="nav-microhead">MON ESPACE</span>
+                    <ul class="nav-group__list">
+                        <li>
+                            <a href="{{ route('commandes.create') }}" @class(['nav-link', 'is-active' => request()->routeIs('commandes.create')]) @if (request()->routeIs('commandes.create')) aria-current="page" @endif>
+                                <i class="ti ti-plus" aria-hidden="true"></i>
+                                <span class="nav-link__label">Nouvelle commande</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                @endif
+
                 @if ($role === 'admin' || $role === 'gestionnaire')
                 <div class="nav-group">
                     <span class="nav-microhead">GESTION</span>
@@ -210,9 +224,13 @@
                     </a>
                     @endif
                     @if ($role === 'client')
-                    <a href="{{ route('portail.dashboard') }}" class="cmd-palette__item">
-                        <i class="ti ti-user-circle" aria-hidden="true"></i>
-                        <span>Espace Client</span>
+                    <a href="{{ route('dashboard') }}" class="cmd-palette__item">
+                        <i class="ti ti-receipt" aria-hidden="true"></i>
+                        <span>Mes commandes</span>
+                    </a>
+                    <a href="{{ route('commandes.create') }}" class="cmd-palette__item">
+                        <i class="ti ti-plus" aria-hidden="true"></i>
+                        <span>Nouvelle commande</span>
                     </a>
                     @endif
                 </div>

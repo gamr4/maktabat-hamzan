@@ -2,7 +2,7 @@
     'label',
     'value',
     'icon',
-    'href',
+    'href' => '#',
     'accent' => false,
     'trend' => '+12% ce mois',
     'trendType' => 'up',

@@ -12,6 +12,9 @@ A Laravel web application to manage a stationery business: clients, suppliers, p
   - **Fournisseurs**
   - **Produits**
   - **Commandes**
+- Client portal: clients can browse their order history and place new orders
+  through the same order form as staff, with their client account selected
+  automatically
 - Auto-generated codes for records (e.g. `Cli-000001`) through the `HasCode` trait
 - Success messages and validation errors displayed in the main layout
 - Responsive sidebar layout with Tabler Icons
@@ -74,12 +77,17 @@ All routes except login are protected by the `auth` middleware.
 | GET | `/profil` | `profile.show` | Profile page for every role |
 | PUT | `/profil` | `profile.update` | Update own name and email |
 | PUT | `/profil/mot-de-passe` | `profile.password` | Change own password |
-| Resource | `/clients` | `clients.*` | Clients CRUD |
-| Resource | `/fournisseurs` | `fournisseurs.*` | Fournisseurs CRUD |
-| Resource | `/produits` | `produits.*` | Produits CRUD |
-| Resource | `/commandes` | `commandes.*` | Commandes CRUD |
+| GET | `/commandes/create` | `commandes.create` | New order form (clients use the same form with their account prefilled) |
+| POST | `/commandes` | `commandes.store` | Create an order (clients can only create for their own account) |
+| GET | `/commandes/{commande}` | `commandes.show` | Order details (clients can only view their own orders) |
+| GET | `/portail/commandes` | `portail.commandes` | Client's own order history |
+| GET | `/portail/commandes/{commande}` | `portail.commandes.show` | Client order details (scoped to own accounts) |
+| Resource | `/clients` | `clients.*` | Clients CRUD (admin & gestionnaire) |
+| Resource | `/fournisseurs` | `fournisseurs.*` | Fournisseurs CRUD (admin) |
+| Resource | `/produits` | `produits.*` | Produits CRUD (admin & gestionnaire) |
+| Resource | `/commandes` | `commandes.*` | Order list, edit and delete (admin & gestionnaire) |
 
-Each resource provides: `index`, `create`, `store`, `show`, `edit`, `update`, `destroy`.
+The `commandes` resource is split: clients may only use `create`, `store` and view their own `show`; every other order action stays staff-only.
 
 Run `php artisan route:list` to see everything.
 

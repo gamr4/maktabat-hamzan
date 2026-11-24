@@ -1,132 +1,177 @@
 <!-- Slim single-line greeting bar -->
-<section class="greeting-bar" aria-labelledby="greeting-title">
-    <div class="greeting-bar__left">
-        <span class="status-indicator-dot" aria-hidden="true"></span>
-        <h2 id="greeting-title" class="greeting-bar__title">
-            Bonjour, <strong>{{ Auth::user()->name ?? 'Client' }}</strong>
-            <span class="greeting-bar__sub">— Bienvenue sur votre espace client</span>
-        </h2>
-    </div>
-    <div class="greeting-bar__actions" aria-label="Accès rapides">
-        <button type="button" class="greeting-btn" onclick="window.print()">
+@include('dashboard.partials._greeting-bar', [
+    'name' => Auth::user()->name ?? 'Client',
+    'subtext' => 'Bienvenue sur votre espace client',
+    'actions' => '
+        <a href="' . route('profile.show') . '" class="greeting-btn">
+            <i class="ti ti-user-circle" aria-hidden="true"></i>
+            <span>Mes coordonnées</span>
+        </a>
+        <button type="button" onclick="window.print()" class="greeting-btn">
             <i class="ti ti-printer" aria-hidden="true"></i>
             <span>Imprimer</span>
         </button>
-    </div>
-</section>
+    ',
+])
 
-<!-- Client Scoped KPI Cards -->
-<div class="stats-grid">
-    <x-stat-card label="Mes commandes" :value="$stats['commandes'] ?? 0" icon="shopping-cart"
-        :href="route('dashboard')" accent trend="Historique des commandes" trend-type="neutral" sparkline="orders" />
-    <x-stat-card label="Total des achats" :value="number_format($stats['total_depense'] ?? 0, 2, ',', ' ')" unit="MAD" icon="wallet"
-        :href="route('dashboard')" trend="Montant cumulé Net" trend-type="up" sparkline="clients" />
-    <x-stat-card label="Articles disponibles" :value="$stats['produits'] ?? 0" icon="box"
-        :href="route('dashboard')" trend="Catalogue actif" trend-type="neutral" sparkline="products" />
+<!-- Indicateurs clés clients (3 KPI Cards épurées) -->
+<div class="stats-grid stats-grid--three">
+    <x-stat-card
+        label="Mes commandes"
+        :value="$stats['commandes']"
+        icon="shopping-cart"
+        href="#commandes-section"
+        accent
+        :trend="$trends['commandes'] ?? null"
+        :trend-type="$trends['commandes_type'] ?? 'neutral'"
+        sparkline="orders"
+    />
+    <x-stat-card
+        label="Total des achats"
+        :value="number_format($stats['total_depense'] ?? 0, 2, ',', ' ')"
+        unit="MAD"
+        icon="wallet"
+        :trend="$trends['depense'] ?? null"
+        :trend-type="$trends['depense_type'] ?? 'neutral'"
+        sparkline="clients"
+    />
+    <x-stat-card
+        label="Économies réalisées"
+        :value="number_format($stats['total_economies'] ?? 0, 2, ',', ' ')"
+        unit="MAD"
+        icon="tag"
+        :trend="$trends['economies'] ?? 'Remise négociée'"
+        :trend-type="$trends['economies_type'] ?? 'up'"
+        sparkline="orders"
+    />
 </div>
 
-<!-- Mes comptes clients associés -->
-@if(isset($clients) && $clients->isNotEmpty())
-    <section class="card card--flush" style="margin-bottom: 1.75rem;" aria-labelledby="linked-clients-title">
-        <div class="card__head">
-            <div>
-                <h2 class="card__title" id="linked-clients-title">Mes fiches clients rattachées</h2>
-                <p class="section-note">Vos entités commerciales et adresses de facturation enregistrées.</p>
-            </div>
-            <span style="font-size: 0.8rem; color: #8b949e;">{{ $clients->count() }} compte(s) associé(s)</span>
-        </div>
-        <div style="padding: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-            @foreach ($clients as $c)
-                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm, 8px); padding: 1.15rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.65rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
-                        <div>
-                            <span class="cell-code" style="font-size: 0.78rem; display: inline-block; margin-bottom: 0.25rem;">{{ $c->code_client }}</span>
-                            <h3 style="font-size: 1rem; font-weight: 600; margin: 0; color: #fff;">{{ $c->nom_client }}</h3>
-                        </div>
-                        <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">{{ $c->type_client }}</span>
-                    </div>
-                    <p style="font-size: 0.825rem; color: #8b949e; margin: 0;">
-                        <i class="ti ti-map-pin" aria-hidden="true" style="font-size: 0.9rem;"></i>
-                        {{ $c->ville_client }} ({{ $c->code_postal_client }})
+<!-- Architecture épurée centrée sur les commandes -->
+<div class="client-dashboard-layout">
+    <!-- Section principale : Historique complet des commandes -->
+    <div class="client-dashboard-main">
+        <section class="card card--flush" id="commandes-section" aria-labelledby="latest-orders-title">
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title" id="latest-orders-title">Mes commandes</h2>
+                    <p class="section-note">
+                        Historique de vos commandes passées auprès de la papeterie
+                        @if(isset($clients) && $clients->isNotEmpty())
+                            pour <strong>{{ $clients->pluck('nom_client')->join(', ') }}</strong>
+                        @endif.
                     </p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 0.65rem; font-size: 0.8rem;">
-                        <span style="color: #38bdf8; font-weight: 500;">
-                            Remise : <strong>{{ $c->remise_speciale }}%</strong>
-                        </span>
-                        <span style="color: #8b949e;">
-                            <strong>{{ $c->commandes_count ?? 0 }}</strong> commande(s)
-                        </span>
-                    </div>
                 </div>
-            @endforeach
-        </div>
-    </section>
-@endif
+                <span class="badge badge--neutral">
+                    {{ $latestCommandes->count() }} commande(s) affichée(s)
+                </span>
+            </div>
 
-<!-- Mes dernières commandes -->
-<section class="card card--flush" aria-labelledby="latest-orders-title">
-    <div class="card__head">
-        <div>
-            <h2 class="card__title" id="latest-orders-title">Mes commandes</h2>
-            <p class="section-note">Historique de vos commandes passées auprès de la papeterie.</p>
-        </div>
-        <span style="font-size: 0.8rem; color: #8b949e;">{{ $latestCommandes->count() }} commande(s) affichée(s)</span>
+            @if ($latestCommandes->isEmpty())
+                <x-empty-state
+                    icon="receipt"
+                    title="Aucune commande enregistrée"
+                    text="Passez votre première commande : elle apparaîtra ensuite dans cet historique.">
+                    <a href="{{ route('commandes.create') }}" class="btn btn-primary btn-sm">
+                        <i class="ti ti-plus" aria-hidden="true"></i> Nouvelle commande
+                    </a>
+                </x-empty-state>
+            @else
+                <div class="table-wrap table-wrap--client">
+                    <table class="table client-orders-table">
+                        <caption class="sr-only">Mes commandes</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 125px;">Numéro</th>
+                                <th scope="col" style="width: 110px;">Date</th>
+                                <th scope="col" style="width: 170px;">Client</th>
+                                <th scope="col" style="width: 125px;">Règlement</th>
+                                <th scope="col">Articles commandés</th>
+                                <th scope="col" class="num" style="width: 135px;">Montant Net</th>
+                                <th scope="col" class="text-right" style="width: 90px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($latestCommandes as $commande)
+                                <tr>
+                                    <td>
+                                        <a href="{{ route('commandes.show', $commande->numero_commande) }}" class="cell-code" title="Consulter la commande {{ $commande->numero_commande }}">
+                                            {{ $commande->numero_commande }}
+                                        </a>
+                                    </td>
+                                    <td><x-date :value="$commande->date_commande" /></td>
+                                    <td style="color: #cbd5e1; font-weight: 500;">
+                                        {{ $commande->client?->nom_client ?? '—' }}
+                                    </td>
+                                    <td><x-condition-badge :condition="$commande->condition" /></td>
+                                    <td>
+                                        <div class="order-items-preview">
+                                            <span class="order-items-count">
+                                                <i class="ti ti-package" aria-hidden="true"></i>
+                                                {{ $commande->produits->sum('pivot.quantite') }} art.
+                                            </span>
+                                            @if ($commande->produits->isNotEmpty())
+                                                <span class="order-items-text" title="{{ $commande->produits->map(fn($p) => $p->designation . ' (×' . $p->pivot->quantite . ')')->join(', ') }}">
+                                                    {{ $commande->produits->take(2)->map(fn($p) => $p->designation . ($p->pivot->quantite > 1 ? ' ×' . $p->pivot->quantite : ''))->join(' · ') }}{{ $commande->produits->count() > 2 ? ' · +' . ($commande->produits->count() - 2) : '' }}
+                                                </span>
+                                            @else
+                                                <span class="text-faint" style="font-size: 0.75rem;">Aucun article</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td class="num">
+                                        <strong style="color: #f8fafc;"><x-money :value="$commande->montantNet()" /></strong>
+                                        @if ($commande->client && $commande->client->remise_speciale > 0)
+                                            <div style="font-size: 0.72rem; color: #8b949e; display: flex; align-items: center; justify-content: flex-end; gap: 0.35rem;">
+                                                <span style="text-decoration: line-through;"><x-money :value="$commande->montantBrut()" /></span>
+                                                <span style="color: #38bdf8; font-weight: 600;">-{{ $commande->client->remise_speciale }}%</span>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td class="text-right">
+                                        <a href="{{ route('commandes.show', $commande->numero_commande) }}" class="btn btn-ghost btn-sm" title="Voir les détails de la commande {{ $commande->numero_commande }}">
+                                            Détails <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="padding: 0.85rem 1.25rem; background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; font-size: 0.825rem; color: #8b949e;">
+                    <span>Affichage des <strong>{{ $latestCommandes->count() }}</strong> dernières commandes</span>
+                    <span>Total des commandes affichées : <strong style="color: #f8fafc;"><x-money :value="$latestCommandes->sum(fn ($c) => $c->montantNet())" /></strong></span>
+                </div>
+            @endif
+        </section>
     </div>
 
-    @if ($latestCommandes->isEmpty())
-        <x-empty-state icon="receipt" title="Aucune commande enregistrée"
-            text="Vos commandes validées apparaîtront ici dès leur enregistrement par l'équipe.">
-        </x-empty-state>
-    @else
-        <div class="table-wrap">
-            <table class="table">
-                <caption class="sr-only">Mes commandes</caption>
-                <thead>
-                    <tr>
-                        <th scope="col">Numéro</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Compte Client</th>
-                        <th scope="col">Condition</th>
-                        <th scope="col" class="num">Articles</th>
-                        <th scope="col" class="num">Montant Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($latestCommandes as $commande)
-                        <tr>
-                            <td>
-                                <span class="cell-code">{{ $commande->numero_commande }}</span>
-                            </td>
-                            <td><x-date :value="$commande->date_commande" /></td>
-                            <td>{{ $commande->client?->nom_client ?? '—' }}</td>
-                            <td><x-condition-badge :condition="$commande->condition" /></td>
-                            <td class="num">{{ $commande->produits->sum('pivot.quantite') }}</td>
-                            <td class="num">
-                                <strong><x-money :value="$commande->montantNet()" /></strong>
-                                @if ($commande->client && $commande->client->remise_speciale > 0)
-                                    <div style="font-size: 0.72rem; color: #8b949e; text-decoration: line-through;">
-                                        <x-money :value="$commande->montantBrut()" />
-                                    </div>
-                                @endif
-                            </td>
-                        </tr>
-                        @if ($commande->produits->isNotEmpty())
-                            <tr style="background: rgba(255, 255, 255, 0.015); border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
-                                <td colspan="6" style="padding: 0.45rem 1.25rem 0.65rem; font-size: 0.8rem; color: #8b949e;">
-                                    <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
-                                        <span style="font-weight: 500; color: #c9d1d9;"><i class="ti ti-package" aria-hidden="true"></i> Contenu :</span>
-                                        @foreach ($commande->produits as $p)
-                                            <span style="background: rgba(255, 255, 255, 0.04); padding: 0.15rem 0.5rem; border-radius: 4px;">
-                                                {{ $p->designation }} × <strong>{{ $p->pivot->quantite }}</strong> (<x-money :value="$p->prix_unitaire * $p->pivot->quantite" />)
-                                            </span>
-                                        @endforeach
-                                    </div>
-                                </td>
-                            </tr>
-                        @endif
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-</section>
+    <!-- Section secondaire : Assistance rapide -->
+    <div class="client-dashboard-aside">
+        <section class="card card--flush" aria-labelledby="client-support-title">
+            <div class="client-support-card">
+                <div>
+                    <h2 class="card__title" id="client-support-title" style="font-size: 0.95rem; margin: 0 0 0.2rem 0;">Besoin d'aide ?</h2>
+                    <p class="section-note" style="margin: 0;">Une question sur vos commandes ou une demande de devis sur mesure.</p>
+                </div>
+                <div class="client-support-card__items">
+                    <div class="client-support-row">
+                        <i class="ti ti-phone" aria-hidden="true"></i>
+                        <span>Téléphone : <a href="tel:+212522000000" class="client-support-link"><strong>+212 5 22 00 00 00</strong></a></span>
+                    </div>
+                    <div class="client-support-row">
+                        <i class="ti ti-mail" aria-hidden="true"></i>
+                        <span>Email : <a href="mailto:contact@papeterie-hamzan.ma" class="client-support-link"><strong>contact@papeterie-hamzan.ma</strong></a></span>
+                    </div>
+                    <div class="client-support-row">
+                        <i class="ti ti-clock" aria-hidden="true"></i>
+                        <span>Horaires : <strong>Lun - Ven (08h30 - 18h30)</strong></span>
+                    </div>
+                </div>
+                <a href="mailto:contact@papeterie-hamzan.ma?subject=Demande%20Espace%20Client" class="btn btn-ghost btn-sm">
+                    <i class="ti ti-send" aria-hidden="true"></i> Contacter le support
+                </a>
+            </div>
+        </section>
+    </div>
+</div>

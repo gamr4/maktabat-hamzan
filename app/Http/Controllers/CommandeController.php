@@ -44,19 +44,60 @@ class CommandeController extends Controller
 
     public function create()
     {
+        $user = auth()->user();
+
+        if ($user->isClient()) {
+            $client = $this->clientAccountFor($user);
+
+            if (! $client) {
+                return redirect()
+                    ->route('dashboard')
+                    ->withErrors("Votre compte n'est rattaché à aucune fiche client. Veuillez contacter la papeterie.");
+            }
+
+            return view('commandes.create', [
+                'clients' => collect([$client]),
+                'produits' => Produit::orderBy('designation')->get(),
+                'lockedClient' => $client,
+                'cancelRoute' => route('dashboard'),
+                'submitLabel' => 'Envoyer la commande',
+                'showAdminLinks' => false,
+            ]);
+        }
+
         $this->checkStaffAccess();
 
         return view('commandes.create', [
             'clients' => Client::orderBy('nom_client')->get(),
             'produits' => Produit::orderBy('designation')->get(),
+            'lockedClient' => null,
+            'cancelRoute' => route('commandes.index'),
+            'submitLabel' => 'Enregistrer',
+            'showAdminLinks' => true,
         ]);
     }
 
     public function store(Request $request)
     {
-        $this->checkStaffAccess();
+        $user = auth()->user();
+        $lockedClient = null;
 
-        $data = $this->validateCommande($request);
+        if ($user->isClient()) {
+            $lockedClient = $this->clientAccountFor($user);
+
+            if (! $lockedClient) {
+                return redirect()
+                    ->route('dashboard')
+                    ->withErrors("Votre compte n'est rattaché à aucune fiche client. Veuillez contacter la papeterie.");
+            }
+        } else {
+            $this->checkStaffAccess();
+        }
+
+        $data = $this->validateCommande($request, $lockedClient === null);
+
+        // Clients always order for their own account, regardless of submitted data.
+        $data['code_client'] = $lockedClient?->code_client ?? $data['code_client'];
 
         $commande = DB::transaction(function () use ($data) {
             $commande = Commande::create([
@@ -79,12 +120,20 @@ class CommandeController extends Controller
 
     public function show(string $commande)
     {
-        $this->checkStaffAccess();
+        $user = auth()->user();
+        $isClientView = $user->isClient();
 
-        $commande = Commande::with(['client', 'produits'])
-            ->findOrFail($commande);
+        if ($isClientView) {
+            $commande = Commande::forUser($user)
+                ->with(['client', 'produits'])
+                ->findOrFail($commande);
+        } else {
+            $this->checkStaffAccess();
+            $commande = Commande::with(['client', 'produits'])
+                ->findOrFail($commande);
+        }
 
-        return view('commandes.show', compact('commande'));
+        return view('commandes.show', compact('commande', 'isClientView'));
     }
 
     public function edit(string $commande)
@@ -143,9 +192,14 @@ class CommandeController extends Controller
             ->with('success', 'Commande supprimée avec succès.');
     }
 
-    private function validateCommande(Request $request): array
+    private function clientAccountFor(User $user): ?Client
     {
-        return $request->validate([
+        return $user->clients()->orderBy('code_client')->first();
+    }
+
+    private function validateCommande(Request $request, bool $requireClient = true): array
+    {
+        $rules = [
             'date_commande' => [
                 'required',
                 'date',
@@ -154,10 +208,6 @@ class CommandeController extends Controller
             'condition' => [
                 'required',
                 Rule::in(['LIV', 'T30']),
-            ],
-            'code_client' => [
-                'required',
-                Rule::exists('clients', 'code_client'),
             ],
             'produits' => [
                 'required',
@@ -174,7 +224,16 @@ class CommandeController extends Controller
                 'integer',
                 'min:1',
             ],
-        ]);
+        ];
+
+        if ($requireClient) {
+            $rules['code_client'] = [
+                'required',
+                Rule::exists('clients', 'code_client'),
+            ];
+        }
+
+        return $request->validate($rules);
     }
 
     private function formatProduits(array $produits): array

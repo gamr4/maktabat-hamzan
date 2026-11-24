@@ -56,6 +56,56 @@ class ClientPortalTest extends TestCase
         $response->assertSee('Bienvenue sur votre espace client');
     }
 
+    public function test_client_dashboard_renders_organized_layout_and_kpis(): void
+    {
+        $clientUser = User::factory()->client()->create(['name' => 'Sara Alami']);
+        $clientRecord = Client::factory()->create([
+            'user_id' => $clientUser->id,
+            'nom_client' => 'Alami Editions',
+            'remise_speciale' => 15,
+        ]);
+
+        $fournisseur = Fournisseur::factory()->create();
+        $produit = Produit::factory()->create([
+            'code_fournisseur' => $fournisseur->code_fournisseur,
+            'prix_unitaire' => 100,
+            'designation' => 'Ramette Papier A4',
+        ]);
+
+        $order = Commande::factory()->create([
+            'code_client' => $clientRecord->code_client,
+            'numero_commande' => 'Cmd-ALAMI-100',
+            'condition' => 'LIV',
+        ]);
+        $order->produits()->sync([$produit->code_produit => ['quantite' => 4]]);
+
+        $response = $this->actingAs($clientUser)->get(route('dashboard'));
+
+        $response->assertOk();
+        // Layout structure
+        $response->assertSee('client-dashboard-layout');
+        $response->assertSee('client-dashboard-main');
+        $response->assertSee('client-dashboard-aside');
+
+        // Cohesive KPIs
+        $response->assertSee('Mes commandes');
+        $response->assertSee('Total des achats');
+        $response->assertSee('Économies réalisées');
+        $response->assertDontSee('Comptes rattachés');
+
+        // Order table elements & actions
+        $response->assertSee('Cmd-ALAMI-100');
+        $response->assertSee(route('commandes.show', 'Cmd-ALAMI-100'));
+        $response->assertSee('Détails');
+        $response->assertSee('Ramette Papier A4');
+
+        // Scoped entity & removed cards verified
+        $response->assertSee('Alami Editions');
+        $response->assertDontSee('Conditions commerciales');
+        $response->assertDontSee('Facturation simplifiée');
+        $response->assertDontSee('Mes fiches clients rattachées');
+    }
+
     public function test_client_login_redirects_to_dashboard(): void
     {
         $clientUser = User::factory()->client()->create([

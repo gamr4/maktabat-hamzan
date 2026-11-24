@@ -1,29 +1,23 @@
 <!-- Slim single-line greeting bar -->
-<section class="greeting-bar" aria-labelledby="greeting-title">
-    <div class="greeting-bar__left">
-        <span class="status-indicator-dot" aria-hidden="true"></span>
-        <h2 id="greeting-title" class="greeting-bar__title">
-            Bonjour, <strong>{{ Auth::user()->name ?? 'Gestionnaire' }}</strong>
-            <span class="greeting-bar__sub">— Console de gestion opérationnelle (Gestionnaire)</span>
-        </h2>
-    </div>
-    <div class="greeting-bar__actions" aria-label="Accès rapides">
-        <a href="{{ route('produits.index') }}" class="greeting-btn">
+@include('dashboard.partials._greeting-bar', [
+    'name' => Auth::user()->name ?? 'Gestionnaire',
+    'subtext' => 'Console de gestion opérationnelle (Gestionnaire)',
+    'actions' => '
+        <a href="' . route("produits.index") . '" class="greeting-btn">
             <i class="ti ti-box" aria-hidden="true"></i>
             <span>Catalogue</span>
         </a>
-        <a href="{{ route('clients.index') }}" class="greeting-btn">
+        <a href="' . route("clients.index") . '" class="greeting-btn">
             <i class="ti ti-users" aria-hidden="true"></i>
             <span>Clients</span>
         </a>
-        <a href="{{ route('commandes.create') }}" class="greeting-btn" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">
+        <a href="' . route("commandes.create") . '" class="greeting-btn" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">
             <i class="ti ti-plus" aria-hidden="true"></i>
             <span>Nouvelle commande</span>
         </a>
-    </div>
-</section>
+    ',
+])
 
-<!-- 4 Operational KPI Cards (No Fournisseurs for Gestionnaire) -->
 <div class="stats-grid">
     <x-stat-card label="Commandes" :value="$stats['commandes'] ?? 15" icon="shopping-cart"
         :href="route('commandes.index')" accent :trend="$trends['commandes'] ?? '+12% ce mois'" :trend-type="$trends['commandes_type'] ?? 'up'" sparkline="orders" />

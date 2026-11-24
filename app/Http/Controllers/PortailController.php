@@ -102,51 +102,6 @@ class PortailController extends Controller
         return view('portail.dashboard', compact('clients', 'latestCommandes', 'stats'));
     }
 
-    public function commandes(Request $request)
-    {
-        $user = auth()->user();
-        $search = trim((string) $request->input('q'));
-        $condition = $request->input('condition');
-        $client_code = $request->input('client_code');
-        $date_from = $request->input('date_from');
-        $date_to = $request->input('date_to');
-
-        $allowedSorts = ['date_commande', 'numero_commande'];
-        $sort = in_array($request->input('sort'), $allowedSorts, true) ? $request->input('sort') : 'date_commande';
-        $dir = strtolower((string) $request->input('dir')) === 'asc' ? 'asc' : 'desc';
-
-        $userClients = $user->clients()->orderBy('nom_client')->get();
-
-        $commandes = Commande::forUser($user)
-            ->with(['client', 'produits'])
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('numero_commande', 'like', "%{$search}%")
-                        ->orWhere('date_commande', 'like', "%{$search}%")
-                        ->orWhereHas('client', fn ($c) => $c->where('nom_client', 'like', "%{$search}%"));
-                });
-            })
-            ->when(in_array($condition, ['LIV', 'T30'], true), fn ($q) => $q->where('condition', $condition))
-            ->when($client_code, fn ($q) => $q->where('code_client', $client_code))
-            ->when($date_from, fn ($q) => $q->whereDate('date_commande', '>=', $date_from))
-            ->when($date_to, fn ($q) => $q->whereDate('date_commande', '<=', $date_to))
-            ->orderBy($sort, $dir)
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('portail.commandes', compact(
-            'commandes',
-            'search',
-            'condition',
-            'client_code',
-            'date_from',
-            'date_to',
-            'sort',
-            'dir',
-            'userClients'
-        ));
-    }
-
     public function commandeShow(string $id)
     {
         $user = auth()->user();

@@ -31,14 +31,81 @@ class DashboardController extends Controller
                 return $order->montantNet();
             });
 
+            // Client-scoped month-over-month trends (mirrors the admin dashboard KPIs)
+            $startThisMonth = now()->startOfMonth()->toDateString();
+            $startLastMonth = now()->subMonth()->startOfMonth()->toDateString();
+            $endLastMonth = now()->subMonth()->endOfMonth()->toDateString();
+
+            $commandesThisMonth = Commande::whereIn('code_client', $clientCodes)
+                ->where('date_commande', '>=', $startThisMonth)->count();
+            $commandesLastMonth = Commande::whereIn('code_client', $clientCodes)
+                ->whereBetween('date_commande', [$startLastMonth, $endLastMonth])->count();
+
+            if ($commandesLastMonth > 0) {
+                $orderDiff = round((($commandesThisMonth - $commandesLastMonth) / $commandesLastMonth) * 100);
+                $orderTrend = ($orderDiff >= 0 ? '+' : '') . $orderDiff . '% ce mois';
+                $orderTrendType = $orderDiff > 0 ? 'up' : ($orderDiff < 0 ? 'down' : 'neutral');
+            } elseif ($commandesThisMonth > 0) {
+                $orderTrend = "+{$commandesThisMonth} ce mois";
+                $orderTrendType = 'up';
+            } else {
+                $orderTrend = 'Aucune commande ce mois';
+                $orderTrendType = 'neutral';
+            }
+
+            $spentThisMonth = DB::table('ligne_commandes')
+                ->join('commandes', 'commandes.numero_commande', '=', 'ligne_commandes.numero_commande')
+                ->join('produits', 'produits.code_produit', '=', 'ligne_commandes.code_produit')
+                ->whereIn('commandes.code_client', $clientCodes)
+                ->where('commandes.date_commande', '>=', $startThisMonth)
+                ->selectRaw('SUM(ligne_commandes.quantite * produits.prix_unitaire) as total')
+                ->value('total') ?? 0;
+            $spentLastMonth = DB::table('ligne_commandes')
+                ->join('commandes', 'commandes.numero_commande', '=', 'ligne_commandes.numero_commande')
+                ->join('produits', 'produits.code_produit', '=', 'ligne_commandes.code_produit')
+                ->whereIn('commandes.code_client', $clientCodes)
+                ->whereBetween('commandes.date_commande', [$startLastMonth, $endLastMonth])
+                ->selectRaw('SUM(ligne_commandes.quantite * produits.prix_unitaire) as total')
+                ->value('total') ?? 0;
+
+            if ($spentLastMonth > 0) {
+                $spentDiff = round((($spentThisMonth - $spentLastMonth) / $spentLastMonth) * 100);
+                $spentTrend = ($spentDiff >= 0 ? '+' : '') . $spentDiff . '% ce mois';
+                $spentTrendType = $spentDiff > 0 ? 'up' : ($spentDiff < 0 ? 'down' : 'neutral');
+            } elseif ($spentThisMonth > 0) {
+                $spentTrend = 'Activité ce mois';
+                $spentTrendType = 'up';
+            } else {
+                $spentTrend = 'Montant cumulé TTC';
+                $spentTrendType = 'neutral';
+            }
+
+            $totalSavings = (float) $allOrders->sum(fn ($o) => $o->montantRemise());
+            $maxRemise = (int) ($clients->max('remise_speciale') ?? 0);
+            $totalArticles = (int) $allOrders->sum(fn ($o) => $o->produits->sum('pivot.quantite'));
+
             $stats = [
                 'commandes' => $totalCommandesCount,
                 'clients' => $clients->count(),
-                'total_depense' => $totalSpent,
+                'total_depense' => (float) $totalSpent,
+                'total_economies' => $totalSavings,
+                'max_remise' => $maxRemise,
+                'total_articles' => $totalArticles,
                 'produits' => Produit::count(),
             ];
 
-            return view('dashboard', compact('stats', 'latestCommandes', 'clients'));
+            $trends = [
+                'commandes' => $orderTrend,
+                'commandes_type' => $orderTrendType,
+                'depense' => $spentTrend,
+                'depense_type' => $spentTrendType,
+                'economies' => $totalSavings > 0 ? 'Remises appliquées' : ($maxRemise > 0 ? "Remise active : {$maxRemise}%" : 'Tarif standard'),
+                'economies_type' => $totalSavings > 0 ? 'up' : 'neutral',
+                'compte' => $clients->count() > 1 ? "{$clients->count()} fiches actives" : ($clients->first()?->code_client ?? 'Compte actif'),
+                'compte_type' => 'neutral',
+            ];
+
+            return view('dashboard', compact('stats', 'latestCommandes', 'clients', 'trends'));
         }
 
         // Admin & Gestionnaire
@@ -63,7 +130,7 @@ class DashboardController extends Controller
             $orderDiff = round((($ordersThisMonth - $ordersLastMonth) / $ordersLastMonth) * 100);
             $orderTrend = ($orderDiff >= 0 ? '+' : '') . $orderDiff . '% ce mois';
             $orderTrendType = $orderDiff > 0 ? 'up' : ($orderDiff < 0 ? 'down' : 'neutral');
-        } elseif ($ordersThisMonth > 0) {
+        } elseif ($ordersThisMonth > 1) {
             $orderTrend = "+{$ordersThisMonth} ce mois";
             $orderTrendType = 'up';
         } else {

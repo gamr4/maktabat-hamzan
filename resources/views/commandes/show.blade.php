@@ -1,13 +1,21 @@
 @extends('layouts.app')
 
+@php
+    $isClientView = $isClientView ?? false;
+@endphp
+
 @section('title', 'Commande ' . $commande->numero_commande)
 @section('eyebrow', 'Bon de commande')
 
 @section('actions')
-    <a class="btn btn-primary" href="{{ route('commandes.edit', $commande->numero_commande) }}">
-        <i class="ti ti-edit" aria-hidden="true"></i> Modifier
+    @unless ($isClientView)
+        <a class="btn btn-primary" href="{{ route('commandes.edit', $commande->numero_commande) }}">
+            <i class="ti ti-edit" aria-hidden="true"></i> Modifier
+        </a>
+    @endunless
+    <a class="btn btn-ghost" href="{{ $isClientView ? route('dashboard') : route('commandes.index') }}">
+        {{ $isClientView ? 'Mes commandes' : 'Retour' }}
     </a>
-    <a class="btn btn-ghost" href="{{ route('commandes.index') }}">Retour</a>
 @endsection
 
 @section('content')
@@ -21,9 +29,13 @@
                     </h2>
                     <p>
                         @if ($commande->client)
-                            <a href="{{ route('clients.show', $commande->client->code_client) }}">
+                            @if ($isClientView)
                                 {{ $commande->client->nom_client }}
-                            </a>
+                            @else
+                                <a href="{{ route('clients.show', $commande->client->code_client) }}">
+                                    {{ $commande->client->nom_client }}
+                                </a>
+                            @endif
                         @else
                             Client non renseigné
                         @endif
@@ -65,8 +77,10 @@
             @if ($commande->produits->isEmpty())
                 <x-empty-state icon="box" title="Aucun produit"
                     text="Cette commande ne contient encore aucune ligne.">
-                    <a class="btn btn-primary btn-sm"
-                        href="{{ route('commandes.edit', $commande->numero_commande) }}">Ajouter des produits</a>
+                    @unless ($isClientView)
+                        <a class="btn btn-primary btn-sm"
+                            href="{{ route('commandes.edit', $commande->numero_commande) }}">Ajouter des produits</a>
+                    @endunless
                 </x-empty-state>
             @else
                 <div class="table-wrap">

@@ -8,6 +8,10 @@
         <a class="btn btn-primary" href="{{ route('commandes.create') }}">
             <i class="ti ti-plus" aria-hidden="true"></i> Nouvelle commande
         </a>
+    @elseif ($role === 'client')
+        <a class="btn btn-primary" href="{{ route('commandes.create') }}">
+            <i class="ti ti-plus" aria-hidden="true"></i> Nouvelle commande
+        </a>
     @endif
 @endsection
 
