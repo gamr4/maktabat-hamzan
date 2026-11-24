@@ -2,24 +2,7 @@
 @include('dashboard.partials._greeting-bar', [
     'name' => Auth::user()->name ?? 'Administrateur',
     'subtext' => 'Console de gestion opérationnelle (Admin)',
-    'actions' => '
-        <a href="' . route("produits.index") . '" class="greeting-btn">
-            <i class="ti ti-box" aria-hidden="true"></i>
-            <span>Catalogue</span>
-        </a>
-        <a href="' . route("clients.index") . '" class="greeting-btn">
-            <i class="ti ti-users" aria-hidden="true"></i>
-            <span>Clients</span>
-        </a>
-        <a href="' . route("fournisseurs.index") . '" class="greeting-btn">
-            <i class="ti ti-truck-delivery" aria-hidden="true"></i>
-            <span>Fournisseurs</span>
-        </a>
-        <a href="' . route("commandes.create") . '" class="greeting-btn" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">
-            <i class="ti ti-plus" aria-hidden="true"></i>
-            <span>Nouvelle commande</span>
-        </a>
-    ',
+    'variant' => 'admin',
 ])
 
 <div class="stats-grid">
@@ -35,15 +18,22 @@
         :href="route('produits.index')" :trend="$trends['produits'] ?? '+5% ce mois'" :trend-type="$trends['produits_type'] ?? 'up'" sparkline="products" />
 </div>
 
-<section class="card card--flush" aria-labelledby="latest-orders-title">
-    <div class="card__head">
-        <div>
-            <h2 class="card__title" id="latest-orders-title">Dernières commandes</h2>
-            <p class="section-note">Les cinq commandes les plus récentes de l'entreprise.</p>
+<section class="card card--flush dashboard-data-card dashboard-data-card--orders" aria-labelledby="latest-orders-title">
+    <div class="card__head dashboard-data-card__head">
+        <div class="dashboard-data-card__heading">
+            <span class="dashboard-data-card__icon" aria-hidden="true"><i class="ti ti-receipt-2"></i></span>
+            <div>
+                <p class="dashboard-data-card__eyebrow">Suivi des ventes</p>
+                <h2 class="card__title" id="latest-orders-title">Dernières commandes</h2>
+                <p class="section-note">Les cinq commandes les plus récentes de l'entreprise.</p>
+            </div>
         </div>
-        <a class="btn btn-ghost btn-sm" href="{{ route('commandes.index') }}">
-            Tout voir <i class="ti ti-arrow-right" aria-hidden="true"></i>
-        </a>
+        <div class="dashboard-data-card__actions">
+            <span class="dashboard-data-card__count"><span class="status-dot" aria-hidden="true"></span>{{ $latestCommandes->count() }} récente{{ $latestCommandes->count() > 1 ? 's' : '' }}</span>
+            <a class="btn btn-ghost btn-sm" href="{{ route('commandes.index') }}">
+                Tout voir <i class="ti ti-arrow-right" aria-hidden="true"></i>
+            </a>
+        </div>
     </div>
 
     @if ($latestCommandes->isEmpty())
@@ -52,7 +42,7 @@
             <a class="btn btn-primary btn-sm" href="{{ route('commandes.create') }}">Créer une commande</a>
         </x-empty-state>
     @else
-        <div class="table-wrap">
+        <div class="table-wrap dashboard-data-card__table">
             <table class="table">
                 <caption class="sr-only">Dernières commandes</caption>
                 <thead>
@@ -87,17 +77,24 @@
 </section>
 
 @if(isset($topClients) && $topClients->isNotEmpty())
-    <section class="card card--flush" style="margin-top: 1.75rem;" aria-labelledby="top-clients-title">
-        <div class="card__head">
-            <div>
-                <h2 class="card__title" id="top-clients-title">Principaux clients</h2>
-                <p class="section-note">Clients enregistrés les plus actifs par nombre de commandes.</p>
+    <section class="card card--flush dashboard-data-card dashboard-data-card--clients" style="margin-top: 1.75rem;" aria-labelledby="top-clients-title">
+        <div class="card__head dashboard-data-card__head">
+            <div class="dashboard-data-card__heading">
+                <span class="dashboard-data-card__icon" aria-hidden="true"><i class="ti ti-users-group"></i></span>
+                <div>
+                    <p class="dashboard-data-card__eyebrow">Relations actives</p>
+                    <h2 class="card__title" id="top-clients-title">Principaux clients</h2>
+                    <p class="section-note">Clients enregistrés les plus actifs par nombre de commandes.</p>
+                </div>
             </div>
-            <a class="btn btn-ghost btn-sm" href="{{ route('clients.index') }}">
-                Tous les clients <i class="ti ti-arrow-right" aria-hidden="true"></i>
-            </a>
+            <div class="dashboard-data-card__actions">
+                <span class="dashboard-data-card__count">Top {{ $topClients->count() }}</span>
+                <a class="btn btn-ghost btn-sm" href="{{ route('clients.index') }}">
+                    Tous les clients <i class="ti ti-arrow-right" aria-hidden="true"></i>
+                </a>
+            </div>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap dashboard-data-card__table">
             <table class="table">
                 <caption class="sr-only">Principaux clients</caption>
                 <thead>

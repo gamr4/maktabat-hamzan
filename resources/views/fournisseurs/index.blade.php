@@ -27,14 +27,29 @@
             </form>
             <div class="catalogue-grid">
                 @foreach ($fournisseurs as $fournisseur)
-                    <article class="catalogue-card supplier-card">
-                        <div class="supplier-card__icon" aria-hidden="true"><i class="ti ti-building-store"></i></div>
-                        <div class="catalogue-card__body">
-                            <div class="catalogue-card__meta"><span class="code-chip">{{ $fournisseur->code_fournisseur }}</span><span class="catalogue-card__location">{{ $fournisseur->pays_fournisseur ?? 'International' }}</span></div>
-                            <h3><a href="{{ route('fournisseurs.show', $fournisseur->code_fournisseur) }}">{{ $fournisseur->nom_fournisseur }}</a></h3>
-                            <p class="catalogue-card__source"><i class="ti ti-map-pin" aria-hidden="true"></i> {{ $fournisseur->ville_fournisseur }} · {{ $fournisseur->contact_fournisseur ?? 'Contact à renseigner' }}</p>
+                    <article class="catalogue-card directory-card directory-card--supplier">
+                        <header class="directory-card__head">
+                            <div class="supplier-card__icon" aria-hidden="true"><i class="ti ti-building-store"></i></div>
+                            <div class="directory-card__heading">
+                                <div class="catalogue-card__meta">
+                                    <span class="code-chip">{{ $fournisseur->code_fournisseur }}</span>
+                                    <span class="catalogue-card__location">{{ $fournisseur->pays_fournisseur ?? 'International' }}</span>
+                                </div>
+                                <h3><a href="{{ route('fournisseurs.show', $fournisseur->code_fournisseur) }}">{{ $fournisseur->nom_fournisseur }}</a></h3>
+                            </div>
+                        </header>
+                        <div class="catalogue-card__body directory-card__body">
+                            <p class="directory-card__row"><i class="ti ti-map-pin" aria-hidden="true"></i><span>{{ $fournisseur->ville_fournisseur }}</span></p>
+                            <p class="directory-card__row"><i class="ti ti-user" aria-hidden="true"></i><span>{{ $fournisseur->contact_fournisseur ?? 'Contact à renseigner' }}</span></p>
                         </div>
-                        <footer class="catalogue-card__footer"><span class="catalogue-card__detail mono">{{ $fournisseur->tel_fournisseur ?? '—' }}</span><div class="table-actions"><a class="icon-btn" href="{{ route('fournisseurs.show', $fournisseur->code_fournisseur) }}" title="Voir la fiche" aria-label="Voir {{ $fournisseur->nom_fournisseur }}"><i class="ti ti-arrow-up-right" aria-hidden="true"></i></a><a class="icon-btn" href="{{ route('fournisseurs.edit', $fournisseur->code_fournisseur) }}" title="Modifier" aria-label="Modifier {{ $fournisseur->nom_fournisseur }}"><i class="ti ti-edit" aria-hidden="true"></i></a><form class="inline-form" action="{{ route('fournisseurs.destroy', $fournisseur->code_fournisseur) }}" method="POST" data-confirm="Voulez-vous vraiment supprimer ce fournisseur ?">@csrf @method('DELETE')<button type="submit" class="icon-btn icon-btn--danger" title="Supprimer" aria-label="Supprimer {{ $fournisseur->nom_fournisseur }}"><i class="ti ti-trash" aria-hidden="true"></i></button></form></div></footer>
+                        <footer class="catalogue-card__footer directory-card__footer">
+                            <span class="directory-card__metric mono"><i class="ti ti-phone" aria-hidden="true"></i> {{ $fournisseur->tel_fournisseur ?? '—' }}</span>
+                            <div class="table-actions">
+                                <a class="icon-btn" href="{{ route('fournisseurs.show', $fournisseur->code_fournisseur) }}" title="Voir la fiche" aria-label="Voir {{ $fournisseur->nom_fournisseur }}"><i class="ti ti-arrow-up-right" aria-hidden="true"></i></a>
+                                <a class="icon-btn" href="{{ route('fournisseurs.edit', $fournisseur->code_fournisseur) }}" title="Modifier" aria-label="Modifier {{ $fournisseur->nom_fournisseur }}"><i class="ti ti-edit" aria-hidden="true"></i></a>
+                                <form class="inline-form" action="{{ route('fournisseurs.destroy', $fournisseur->code_fournisseur) }}" method="POST" data-confirm="Voulez-vous vraiment supprimer ce fournisseur ?">@csrf @method('DELETE')<button type="submit" class="icon-btn icon-btn--danger" title="Supprimer" aria-label="Supprimer {{ $fournisseur->nom_fournisseur }}"><i class="ti ti-trash" aria-hidden="true"></i></button></form>
+                            </div>
+                        </footer>
                     </article>
                 @endforeach
             </div>

@@ -16,23 +16,28 @@
 @endsection
 
 @section('content')
-    <div class="stack">
+    <div class="profile-page stack">
         <section class="card profile-hero" aria-labelledby="profile-hero-title">
-            <div class="profile-hero__avatar" aria-hidden="true">
-                {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+            <div class="profile-hero__glow" aria-hidden="true"></div>
+            <div class="profile-hero__identity">
+                <div class="profile-hero__avatar" aria-hidden="true">
+                    {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+                </div>
+                <div class="profile-hero__body">
+                    <p class="eyebrow">Espace personnel</p>
+                    <h2 class="profile-hero__name" id="profile-hero-title">{{ $user->name }}</h2>
+                    <p class="profile-hero__email"><i class="ti ti-mail" aria-hidden="true"></i>{{ $user->email }}</p>
+                </div>
             </div>
-            <div class="profile-hero__body">
-                <p class="eyebrow">Compte utilisateur</p>
-                <h2 class="profile-hero__name" id="profile-hero-title">{{ $user->name }}</h2>
-                <p class="profile-hero__email">{{ $user->email }}</p>
+            <div class="profile-hero__details">
+                <span class="badge profile-hero__role">{{ $user->role_label }}</span>
                 <div class="profile-hero__meta">
-                    <span class="badge profile-hero__role">{{ $user->role_label }}</span>
                     <span class="profile-hero__meta-item">
                         <i class="ti ti-calendar" aria-hidden="true"></i>
                         Membre depuis <x-date :value="$user->created_at" />
                     </span>
-                    <span class="profile-hero__meta-item">
-                        <i class="ti ti-circle-check" aria-hidden="true"></i>
+                    <span class="profile-hero__meta-item profile-hero__meta-item--active">
+                        <span class="status-dot" aria-hidden="true"></span>
                         Compte actif
                     </span>
                 </div>
@@ -40,14 +45,17 @@
         </section>
 
         <div class="profile-grid">
-            <section class="card" aria-labelledby="profile-info-title">
+            <section class="card profile-panel" aria-labelledby="profile-info-title">
                 <div class="profile-section-head">
-                    <div>
+                    <div class="profile-section-head__copy">
+                        <span class="profile-section-head__icon" aria-hidden="true"><i class="ti ti-user-edit"></i></span>
+                        <div>
                         <h2 class="card__title" id="profile-info-title">
                             <i class="ti ti-user-edit" aria-hidden="true"></i>
                             Informations personnelles
                         </h2>
                         <p class="section-note">Ces informations servent à vous identifier dans la console.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -67,15 +75,19 @@
                 </form>
             </section>
 
-            <section class="card" aria-labelledby="profile-password-title">
+            <section class="card profile-panel" aria-labelledby="profile-password-title">
                 <div class="profile-section-head">
-                    <div>
+                    <div class="profile-section-head__copy">
+                        <span class="profile-section-head__icon profile-section-head__icon--secure" aria-hidden="true"><i class="ti ti-shield-lock"></i></span>
+                        <div>
                         <h2 class="card__title" id="profile-password-title">
                             <i class="ti ti-shield-lock" aria-hidden="true"></i>
                             Modifier mon mot de passe
                         </h2>
                         <p class="section-note">Choisissez un mot de passe de 8 caractères minimum.</p>
+                        </div>
                     </div>
+                    <span class="profile-security-label"><i class="ti ti-lock" aria-hidden="true"></i> Sécurisé</span>
                 </div>
 
                 <form method="POST" action="{{ route('profile.password') }}" class="profile-form">

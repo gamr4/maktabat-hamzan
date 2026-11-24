@@ -39,6 +39,13 @@
                 </button>
             </div>
 
+            <div class="sidebar-controls">
+                <button type="button" class="sidebar-toggle" id="sidebarCollapseBtn" title="Réduire la barre" aria-label="Réduire la barre latérale">
+                    <span class="sidebar-toggle__label">Réduire la barre</span>
+                    <i class="ti ti-layout-sidebar-left-collapse" aria-hidden="true"></i>
+                </button>
+            </div>
+
             <!-- Grouped Navigation with micro-headers and tightened py-2 spacing -->
             <nav class="app-nav" aria-label="Navigation principale">
                 <div class="nav-group">
@@ -125,9 +132,6 @@
                         </div>
                     </a>
                     <div class="profile-card__actions">
-                        <button type="button" class="profile-card__btn sidebar-collapse-btn" id="sidebarCollapseBtn" title="Réduire la barre" aria-label="Réduire la barre latérale">
-                            <i class="ti ti-layout-sidebar-left-collapse" aria-hidden="true"></i>
-                        </button>
                         <form action="{{ route('logout') }}" method="POST" class="profile-card__logout-form">
                             @csrf
                             <button type="submit" class="profile-card__btn profile-card__btn--logout" title="Se déconnecter" aria-label="Se déconnecter">

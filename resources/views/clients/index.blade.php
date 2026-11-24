@@ -28,25 +28,37 @@
             </form>
             <div class="catalogue-grid">
                 @foreach ($clients as $client)
-                    <article class="catalogue-card person-card">
-                        <div class="person-card__avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr($client->nom_client, 0, 1)) }}</div>
-                        <div class="catalogue-card__body">
-                            <div class="catalogue-card__meta"><span class="code-chip">{{ $client->code_client }}</span><span class="badge badge--neutral" title="{{ config('papeterie.client_types.' . $client->type_client) }}">{{ $client->type_client }}</span></div>
-                            <h3><a href="{{ route('clients.show', $client->code_client) }}">{{ $client->nom_client }}</a></h3>
-                            <p class="catalogue-card__source"><i class="ti ti-map-pin" aria-hidden="true"></i> {{ $client->ville_client }}, {{ $client->code_postal_client }}</p>
-                            <p style="margin: 0.25rem 0 0; font-size: 0.78rem;">
-                                @if ($client->user)
-                                    <span style="color: #34d399; display: inline-flex; align-items: center; gap: 0.25rem;" title="Compte utilisateur actif">
-                                        <i class="ti ti-user-check" aria-hidden="true"></i> {{ $client->user->email }}
-                                    </span>
-                                @else
-                                    <span style="color: #8b949e; display: inline-flex; align-items: center; gap: 0.25rem;" title="Aucun compte utilisateur">
-                                        <i class="ti ti-user-off" aria-hidden="true"></i> Aucun compte
-                                    </span>
-                                @endif
-                            </p>
+                    <article class="catalogue-card directory-card directory-card--client">
+                        <header class="directory-card__head">
+                            <div class="person-card__avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr($client->nom_client, 0, 1)) }}</div>
+                            <div class="directory-card__heading">
+                                <div class="catalogue-card__meta">
+                                    <span class="code-chip">{{ $client->code_client }}</span>
+                                    <span class="badge badge--neutral" title="{{ config('papeterie.client_types.' . $client->type_client) }}">{{ $client->type_client }}</span>
+                                </div>
+                                <h3><a href="{{ route('clients.show', $client->code_client) }}">{{ $client->nom_client }}</a></h3>
+                            </div>
+                        </header>
+                        <div class="catalogue-card__body directory-card__body">
+                            <p class="directory-card__row"><i class="ti ti-map-pin" aria-hidden="true"></i><span>{{ $client->ville_client }}, {{ $client->code_postal_client }}</span></p>
+                            @if ($client->user)
+                                <p class="directory-card__access directory-card__access--active" title="Compte utilisateur actif">
+                                    <i class="ti ti-user-check" aria-hidden="true"></i><span>{{ $client->user->email }}</span>
+                                </p>
+                            @else
+                                <p class="directory-card__access">
+                                    <i class="ti ti-user-off" aria-hidden="true"></i><span>Aucun compte utilisateur associé</span>
+                                </p>
+                            @endif
                         </div>
-                        <footer class="catalogue-card__footer"><span class="catalogue-card__detail">Remise <strong>{{ $client->remise_speciale }} %</strong></span><div class="table-actions"><a class="icon-btn" href="{{ route('clients.show', $client->code_client) }}" title="Voir la fiche" aria-label="Voir {{ $client->nom_client }}"><i class="ti ti-arrow-up-right" aria-hidden="true"></i></a><a class="icon-btn" href="{{ route('clients.edit', $client->code_client) }}" title="Modifier" aria-label="Modifier {{ $client->nom_client }}"><i class="ti ti-edit" aria-hidden="true"></i></a><form class="inline-form" action="{{ route('clients.destroy', $client->code_client) }}" method="POST" data-confirm="Voulez-vous vraiment supprimer ce client ?">@csrf @method('DELETE')<button type="submit" class="icon-btn icon-btn--danger" title="Supprimer" aria-label="Supprimer {{ $client->nom_client }}"><i class="ti ti-trash" aria-hidden="true"></i></button></form></div></footer>
+                        <footer class="catalogue-card__footer directory-card__footer">
+                            <span class="directory-card__metric"><i class="ti ti-percentage" aria-hidden="true"></i> Remise <strong>{{ $client->remise_speciale }} %</strong></span>
+                            <div class="table-actions">
+                                <a class="icon-btn" href="{{ route('clients.show', $client->code_client) }}" title="Voir la fiche" aria-label="Voir {{ $client->nom_client }}"><i class="ti ti-arrow-up-right" aria-hidden="true"></i></a>
+                                <a class="icon-btn" href="{{ route('clients.edit', $client->code_client) }}" title="Modifier" aria-label="Modifier {{ $client->nom_client }}"><i class="ti ti-edit" aria-hidden="true"></i></a>
+                                <form class="inline-form" action="{{ route('clients.destroy', $client->code_client) }}" method="POST" data-confirm="Voulez-vous vraiment supprimer ce client ?">@csrf @method('DELETE')<button type="submit" class="icon-btn icon-btn--danger" title="Supprimer" aria-label="Supprimer {{ $client->nom_client }}"><i class="ti ti-trash" aria-hidden="true"></i></button></form>
+                            </div>
+                        </footer>
                     </article>
                 @endforeach
             </div>
